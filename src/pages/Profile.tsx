@@ -105,7 +105,7 @@ export default function Profile() {
           <div className="flex flex-wrap gap-1 justify-center mt-3">
             {profile?.role && <Badge variant="secondary" className="capitalize">{profile.role.replace("_", " ")}</Badge>}
           </div>
-          <div className="text-xs text-muted-foreground mt-4">Joined {fmtDate(profile?.joining_date)}</div>
+
         </div>
 
         <div className="glass-card p-6 lg:col-span-2 space-y-4">

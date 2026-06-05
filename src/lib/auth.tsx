@@ -33,6 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // Failsafe: force loading to false after 5 seconds no matter what
+    const failsafe = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn("Auth initialization timed out, forcing load completion.");
+        setLoading(false);
+      }
+    }, 5000);
+
     async function loadAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -51,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Auth initialization error:", error);
       } finally {
         if (mounted) setLoading(false);
+        clearTimeout(failsafe);
       }
     }
 
@@ -66,10 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
       }
       setLoading(false);
+      clearTimeout(failsafe);
     });
 
     return () => {
       mounted = false;
+      clearTimeout(failsafe);
       subscription.unsubscribe();
     };
   }, []);
