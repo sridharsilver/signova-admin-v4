@@ -8,6 +8,38 @@ import { Search, QrCode, Download, Image as ImageIcon, LayoutGrid, List } from "
 import { Product } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
 
+function getLabeledQRSource(svgElement: HTMLElement, productName: string, productSku: string, type: 'product' | 'technical') {
+  const serializer = new XMLSerializer();
+  let qrSource = serializer.serializeToString(svgElement);
+  qrSource = qrSource.replace(/xmlns="[^"]*"/g, ""); // strip xmlns so it inherits from parent
+  
+  const escapeXml = (unsafe: string) => unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+
+  const name = escapeXml(productName);
+  const sku = escapeXml(productSku);
+  const label = type === 'product' ? 'Product Page' : 'Tech Specs';
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <rect width="1000" height="1000" fill="white" />
+  <svg x="100" y="100" width="800" height="800">
+    ${qrSource}
+  </svg>
+  <text x="500" y="60" font-family="sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="black">${name}</text>
+  <text x="500" y="940" font-family="monospace" font-size="35" text-anchor="middle" fill="#666">${sku}</text>
+  <text x="500" y="980" font-family="sans-serif" font-size="25" text-anchor="middle" fill="#999">${label}</text>
+</svg>`;
+}
+
 function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
   if (!product) return null;
   const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
@@ -52,8 +84,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               onClick={() => {
                 const svg = document.getElementById(`qr-svg-product-${product.id}`);
                 if (!svg) return;
-                const serializer = new XMLSerializer();
-                const source = serializer.serializeToString(svg);
+                const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
                 const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 const a = document.createElement("a");
                 a.href = url;
@@ -68,8 +99,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               onClick={() => {
                 const svg = document.getElementById(`qr-svg-product-${product.id}`);
                 if (!svg) return;
-                const serializer = new XMLSerializer();
-                const source = serializer.serializeToString(svg);
+                const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
                 const img = new Image();
                 const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 img.onload = () => {
@@ -80,7 +110,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   if (!ctx) return;
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
-                  ctx.drawImage(img, 75, 75, 850, 850);
+                  ctx.drawImage(img, 0, 0, 1000, 1000);
                   const pngUrl = canvas.toDataURL("image/png");
                   const a = document.createElement("a");
                   a.href = pngUrl;
@@ -135,8 +165,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               onClick={() => {
                 const svg = document.getElementById(`qr-svg-technical-${product.id}`);
                 if (!svg) return;
-                const serializer = new XMLSerializer();
-                const source = serializer.serializeToString(svg);
+                const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
                 const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 const a = document.createElement("a");
                 a.href = url;
@@ -151,8 +180,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               onClick={() => {
                 const svg = document.getElementById(`qr-svg-technical-${product.id}`);
                 if (!svg) return;
-                const serializer = new XMLSerializer();
-                const source = serializer.serializeToString(svg);
+                const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
                 const img = new Image();
                 const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 img.onload = () => {
@@ -163,7 +191,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   if (!ctx) return;
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
-                  ctx.drawImage(img, 75, 75, 850, 850);
+                  ctx.drawImage(img, 0, 0, 1000, 1000);
                   const pngUrl = canvas.toDataURL("image/png");
                   const a = document.createElement("a");
                   a.href = pngUrl;
