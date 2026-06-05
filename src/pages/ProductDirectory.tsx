@@ -50,7 +50,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
         <DialogTrigger asChild>
           <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-blue-50 hover:bg-blue-100 hover:text-blue-600 text-blue-500"} title="Product Page QR">
             <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
-            {showLabels && "Product Page"}
+            {showLabels && <span>Product Page</span>}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
@@ -101,7 +101,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
-              <Download className="size-4" /> SVG
+              <Download className="size-4" /> <span>SVG</span>
             </Button>
             <Button
               onClick={(e) => {
@@ -143,7 +143,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
-              <Download className="size-4" /> PNG
+              <Download className="size-4" /> <span>PNG</span>
             </Button>
           </div>
         </DialogContent>
@@ -153,7 +153,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
         <DialogTrigger asChild>
           <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-600 text-emerald-500"} title="Technical Specs QR">
             <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
-            {showLabels && "Tech Specs"}
+            {showLabels && <span>Tech Specs</span>}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
@@ -204,7 +204,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
-              <Download className="size-4" /> SVG
+              <Download className="size-4" /> <span>SVG</span>
             </Button>
             <Button
               onClick={(e) => {
@@ -246,7 +246,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
-              <Download className="size-4" /> PNG
+              <Download className="size-4" /> <span>PNG</span>
             </Button>
           </div>
         </DialogContent>
