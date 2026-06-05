@@ -24,6 +24,12 @@
 </head>
   <body>
     <div id="root"></div>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        document.body.innerHTML = '<div style="padding: 20px; background: white; color: red; font-family: sans-serif;"><h1>Fatal JS Error</h1><p>' + message + '</p><p>Source: ' + source + ':' + lineno + ':' + colno + '</p><pre>' + (error && error.stack ? error.stack : '') + '</pre></div>';
+        return true;
+      };
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
