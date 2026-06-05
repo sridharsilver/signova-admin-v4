@@ -5,7 +5,7 @@ import { Loader2, UserCog, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Profile, useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
