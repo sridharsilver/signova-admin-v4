@@ -266,7 +266,7 @@ export default function ProductDirectory() {
                       <img 
                         src={getProductImageUrl(product.image_url)} 
                         alt={product.name}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain p-1"
                       />
                     ) : (
                       <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
@@ -298,7 +298,7 @@ export default function ProductDirectory() {
                     <img 
                       src={getProductImageUrl(product.image_url)} 
                       alt={product.name}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      className="object-contain w-full h-full p-2 group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
                     <ImageIcon className="h-12 w-12 text-muted-foreground/20" />
