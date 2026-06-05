@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { QRCodeSVG } from "qrcode.react";
-import { Search, QrCode, Download, Image as ImageIcon } from "lucide-react";
+import { Search, QrCode, Download, Image as ImageIcon, LayoutGrid, List } from "lucide-react";
 import { Product } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
 
@@ -187,6 +187,7 @@ export default function ProductDirectory() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
 
   useEffect(() => {
     loadProducts();
@@ -217,8 +218,8 @@ export default function ProductDirectory() {
       />
 
       <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/20">
-          <div className="relative max-w-md">
+        <div className="p-4 border-b border-border bg-muted/20 flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Search products by name or SKU..." 
@@ -226,6 +227,26 @@ export default function ProductDirectory() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9 bg-background"
             />
+          </div>
+          <div className="flex bg-muted/50 p-1 rounded-xl border border-border/50 shrink-0">
+            <Button
+              variant={viewMode === "grid" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className={viewMode === "grid" ? "shadow-sm bg-background" : ""}
+            >
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Grid
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              className={viewMode === "list" ? "shadow-sm bg-background" : ""}
+            >
+              <List className="h-4 w-4 mr-2" />
+              List
+            </Button>
           </div>
         </div>
 
@@ -235,33 +256,68 @@ export default function ProductDirectory() {
           <div className="p-8 text-center text-muted-foreground">
             No products found matching your search.
           </div>
-        ) : (
+        ) : viewMode === "list" ? (
           <div className="divide-y divide-border">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="flex items-center p-4 hover:bg-muted/30 transition-colors">
-                <div className="h-16 w-16 rounded-xl border border-border bg-muted/50 overflow-hidden shrink-0 flex items-center justify-center mr-4">
+              <div key={product.id} className="flex flex-col sm:flex-row sm:items-center p-4 hover:bg-muted/30 transition-colors gap-4">
+                <div className="flex items-center flex-1 min-w-0">
+                  <div className="h-16 w-16 rounded-xl border border-border bg-muted/50 overflow-hidden shrink-0 flex items-center justify-center mr-4">
+                    {product.images && product.images.length > 0 ? (
+                      <img 
+                        src={getProductImageUrl(product.images[0])} 
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 pr-4">
+                    <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded-md border border-border/50">
+                        {product.sku}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex items-center gap-2 border-t sm:border-t-0 pt-4 sm:pt-0 mt-4 sm:mt-0">
+                  <ProductQRDialogs product={product} showLabels={true} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-muted/5">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="bg-card border border-border/50 rounded-2xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
+                <div className="aspect-square bg-muted/30 relative overflow-hidden flex items-center justify-center">
                   {product.images && product.images.length > 0 ? (
                     <img 
                       src={getProductImageUrl(product.images[0])} 
                       alt={product.name}
-                      className="h-full w-full object-cover"
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+                    <ImageIcon className="h-12 w-12 text-muted-foreground/20" />
                   )}
-                </div>
-                
-                <div className="flex-1 min-w-0 pr-4">
-                  <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded-md border border-border/50">
+                  <div className="absolute top-3 left-3">
+                    <span className="text-[10px] font-mono bg-background/90 backdrop-blur-sm text-foreground px-2 py-1 rounded-md border border-border/50 shadow-sm">
                       {product.sku}
                     </span>
                   </div>
                 </div>
-
-                <div className="shrink-0">
-                  <ProductQRDialogs product={product} showLabels={true} />
+                
+                <div className="p-4 flex-1 flex flex-col">
+                  <h3 className="font-semibold text-foreground line-clamp-2 mb-4 flex-1" title={product.name}>
+                    {product.name}
+                  </h3>
+                  
+                  <div className="pt-4 border-t border-border/50 mt-auto flex justify-center">
+                    <ProductQRDialogs product={product} showLabels={false} />
+                  </div>
                 </div>
               </div>
             ))}
