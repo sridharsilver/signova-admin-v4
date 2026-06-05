@@ -86,17 +86,11 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 const svg = document.getElementById(`qr-svg-product-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
-                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                
-                // Open in new tab to avoid mobile browser navigation crashes
-                const newWindow = window.open(url, '_blank');
-                if (!newWindow) {
-                  // Fallback if popup blocked
-                  window.location.href = url;
-                }
-                
-                setTimeout(() => URL.revokeObjectURL(url), 60000); // Clean up after a minute
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${product.slug}-page-qr.svg`;
+                a.click();
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
@@ -109,8 +103,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
                 const img = new Image();
-                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 
                 img.onload = () => {
                   const canvas = document.createElement("canvas");
@@ -121,21 +114,11 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
                   ctx.drawImage(img, 0, 0, 1000, 1000);
-                  
-                  canvas.toBlob((pngBlob) => {
-                    if (!pngBlob) return;
-                    const pngUrl = URL.createObjectURL(pngBlob);
-                    
-                    const newWindow = window.open(pngUrl, '_blank');
-                    if (!newWindow) {
-                      window.location.href = pngUrl;
-                    }
-                    
-                    setTimeout(() => {
-                      URL.revokeObjectURL(pngUrl);
-                      URL.revokeObjectURL(url);
-                    }, 60000);
-                  }, "image/png");
+                  const pngUrl = canvas.toDataURL("image/png");
+                  const a = document.createElement("a");
+                  a.href = pngUrl;
+                  a.download = `${product.slug}-page-qr.png`;
+                  a.click();
                 };
                 img.src = url;
               }}
@@ -187,15 +170,11 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 const svg = document.getElementById(`qr-svg-technical-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
-                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                
-                const newWindow = window.open(url, '_blank');
-                if (!newWindow) {
-                  window.location.href = url;
-                }
-                
-                setTimeout(() => URL.revokeObjectURL(url), 60000);
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${product.slug}-tech-qr.svg`;
+                a.click();
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
@@ -208,8 +187,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
                 const img = new Image();
-                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
                 
                 img.onload = () => {
                   const canvas = document.createElement("canvas");
@@ -220,21 +198,11 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
                   ctx.drawImage(img, 0, 0, 1000, 1000);
-                  
-                  canvas.toBlob((pngBlob) => {
-                    if (!pngBlob) return;
-                    const pngUrl = URL.createObjectURL(pngBlob);
-                    
-                    const newWindow = window.open(pngUrl, '_blank');
-                    if (!newWindow) {
-                      window.location.href = pngUrl;
-                    }
-                    
-                    setTimeout(() => {
-                      URL.revokeObjectURL(pngUrl);
-                      URL.revokeObjectURL(url);
-                    }, 60000);
-                  }, "image/png");
+                  const pngUrl = canvas.toDataURL("image/png");
+                  const a = document.createElement("a");
+                  a.href = pngUrl;
+                  a.download = `${product.slug}-tech-qr.png`;
+                  a.click();
                 };
                 img.src = url;
               }}
