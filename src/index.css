@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    --background: 220 30% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 95 55% 42%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 88 65% 55%;
+
+    --secondary: 90 20% 96%;
+    --secondary-foreground: 120 25% 15%;
+
+    --muted: 90 14% 95%;
+    --muted-foreground: 120 8% 42%;
+
+    --accent: 90 60% 94%;
+    --accent-foreground: 100 60% 25%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 140 65% 40%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+
+    --border: 90 15% 88%;
+    --input: 90 15% 88%;
+    --ring: 95 55% 42%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 120 20% 22%;
+    --sidebar-primary: 95 55% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 90 60% 94%;
+    --sidebar-accent-foreground: 100 60% 25%;
+    --sidebar-border: 90 15% 88%;
+    --sidebar-ring: 95 55% 42%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(95 55% 42%), hsl(85 65% 55%));
+    --gradient-soft: linear-gradient(135deg, hsl(90 60% 94%), hsl(85 65% 95%));
+    --gradient-hero: radial-gradient(circle at top left, hsl(95 55% 42% / 0.15), transparent 50%),
+                     radial-gradient(circle at bottom right, hsl(85 65% 55% / 0.14), transparent 50%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(120 30% 15% / 0.04);
+    --shadow-md: 0 4px 12px -2px hsl(120 30% 15% / 0.08), 0 2px 4px -1px hsl(120 30% 15% / 0.04);
+    --shadow-lg: 0 12px 32px -8px hsl(120 30% 15% / 0.12), 0 4px 8px -2px hsl(120 30% 15% / 0.05);
+    --shadow-glow: 0 8px 32px -4px hsl(95 55% 42% / 0.3);
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 220 20% 96%;
+
+    --card: 222 40% 9%;
+    --card-foreground: 220 20% 96%;
+
+    --popover: 222 40% 9%;
+    --popover-foreground: 220 20% 96%;
+
+    --primary: 88 65% 52%;
+    --primary-foreground: 120 30% 8%;
+    --primary-glow: 85 70% 62%;
+
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 220 20% 96%;
+
+    --muted: 222 30% 14%;
+    --muted-foreground: 220 10% 65%;
+
+    --accent: 100 30% 18%;
+    --accent-foreground: 88 65% 70%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 140 60% 50%;
+    --warning: 38 90% 55%;
+    --info: 199 80% 55%;
+
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 88 65% 52%;
+
+    --sidebar-background: 222 47% 7%;
+    --sidebar-foreground: 220 15% 80%;
+    --sidebar-primary: 88 65% 52%;
+    --sidebar-primary-foreground: 120 30% 8%;
+    --sidebar-accent: 100 30% 16%;
+    --sidebar-accent-foreground: 88 65% 70%;
+    --sidebar-border: 222 30% 16%;
+    --sidebar-ring: 88 65% 52%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(95 55% 42%), hsl(85 70% 55%));
+    --gradient-soft: linear-gradient(135deg, hsl(222 40% 14%), hsl(100 30% 14%));
+    --gradient-hero: radial-gradient(circle at top left, hsl(88 65% 52% / 0.18), transparent 50%),
+                     radial-gradient(circle at bottom right, hsl(95 55% 50% / 0.14), transparent 50%);
+
+    --shadow-md: 0 4px 12px -2px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 12px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 8px 32px -4px hsl(88 65% 52% / 0.35);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body { font-family: 'Inter', system-ui, sans-serif; }
+  body { @apply bg-background text-foreground antialiased; }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-border/60 rounded-2xl;
+    box-shadow: var(--shadow-md);
+  }
+  .glass-card-strong {
+    @apply bg-card/85 backdrop-blur-2xl border border-border/60 rounded-2xl;
+    box-shadow: var(--shadow-lg);
+  }
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-soft { background: var(--gradient-soft); }
+  .gradient-hero { background: var(--gradient-hero); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
