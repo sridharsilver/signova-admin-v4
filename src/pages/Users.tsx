@@ -11,8 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const AVAILABLE_MODULES = [
   { id: "products", label: "Manage Products & Categories" },
-  { id: "employees", label: "Manage Employees" },
-  { id: "documents", label: "Manage Documents" },
+  { id: "products_qr", label: "View Product QR Codes" }
 ];
 
 export default function Users() {

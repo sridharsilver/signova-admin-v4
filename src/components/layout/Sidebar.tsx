@@ -61,19 +61,6 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
             </NavLink>
 
             <NavLink
-              to="/products/directory"
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                pathname === "/products/directory"
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                  : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
-              )}
-            >
-              <QrCode className="h-[18px] w-[18px] shrink-0" />
-              {!collapsed && <span className="truncate">Product QR Codes</span>}
-            </NavLink>
-
-            <NavLink
               to="/products/categories"
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
@@ -86,6 +73,21 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
               {!collapsed && <span className="truncate">Categories</span>}
             </NavLink>
           </>
+        )}
+
+        {hasPermission('products_qr') && (
+          <NavLink
+            to="/products/directory"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+              pathname === "/products/directory"
+                ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
+            )}
+          >
+            <QrCode className="h-[18px] w-[18px] shrink-0" />
+            {!collapsed && <span className="truncate">Product QR Codes</span>}
+          </NavLink>
         )}
 
         {isSuperAdmin && (
