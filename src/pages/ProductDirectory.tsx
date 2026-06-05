@@ -81,27 +81,38 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           <div className="flex w-full gap-3">
             <Button
               variant="outline"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const svg = document.getElementById(`qr-svg-product-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
-                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
+                a.style.display = "none";
                 a.href = url;
                 a.download = `${product.slug}-page-qr.svg`;
+                document.body.appendChild(a);
                 a.click();
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 100);
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
               <Download className="size-4" /> SVG
             </Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const svg = document.getElementById(`qr-svg-product-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
                 const img = new Image();
-                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                
                 img.onload = () => {
                   const canvas = document.createElement("canvas");
                   canvas.width = 1000;
@@ -111,11 +122,22 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
                   ctx.drawImage(img, 0, 0, 1000, 1000);
-                  const pngUrl = canvas.toDataURL("image/png");
-                  const a = document.createElement("a");
-                  a.href = pngUrl;
-                  a.download = `${product.slug}-page-qr.png`;
-                  a.click();
+                  
+                  canvas.toBlob((pngBlob) => {
+                    if (!pngBlob) return;
+                    const pngUrl = URL.createObjectURL(pngBlob);
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = pngUrl;
+                    a.download = `${product.slug}-page-qr.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(pngUrl);
+                      URL.revokeObjectURL(url);
+                    }, 100);
+                  }, "image/png");
                 };
                 img.src = url;
               }}
@@ -162,27 +184,38 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           <div className="flex w-full gap-3">
             <Button
               variant="outline"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const svg = document.getElementById(`qr-svg-technical-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
-                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
+                a.style.display = "none";
                 a.href = url;
                 a.download = `${product.slug}-tech-qr.svg`;
+                document.body.appendChild(a);
                 a.click();
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 100);
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
               <Download className="size-4" /> SVG
             </Button>
             <Button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const svg = document.getElementById(`qr-svg-technical-${product.id}`);
                 if (!svg) return;
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
                 const img = new Image();
-                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                
                 img.onload = () => {
                   const canvas = document.createElement("canvas");
                   canvas.width = 1000;
@@ -192,11 +225,22 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   ctx.fillStyle = "white";
                   ctx.fillRect(0, 0, 1000, 1000);
                   ctx.drawImage(img, 0, 0, 1000, 1000);
-                  const pngUrl = canvas.toDataURL("image/png");
-                  const a = document.createElement("a");
-                  a.href = pngUrl;
-                  a.download = `${product.slug}-tech-qr.png`;
-                  a.click();
+                  
+                  canvas.toBlob((pngBlob) => {
+                    if (!pngBlob) return;
+                    const pngUrl = URL.createObjectURL(pngBlob);
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = pngUrl;
+                    a.download = `${product.slug}-tech-qr.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(pngUrl);
+                      URL.revokeObjectURL(url);
+                    }, 100);
+                  }, "image/png");
                 };
                 img.src = url;
               }}
