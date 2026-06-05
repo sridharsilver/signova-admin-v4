@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
 import ProductCategories from "./pages/ProductCategories";
 import Users from "./pages/Users";
+import Debug from "./pages/Debug";
 
 const App = () => (
   <ThemeProvider>
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/debug" element={<Debug />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
