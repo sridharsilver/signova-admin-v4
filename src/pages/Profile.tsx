@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { initials, roleLabel, fmtDate } from "@/lib/format";
 import { toast } from "sonner";
 import { Camera } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function Profile() {
   const { profile } = useAuth();
@@ -19,18 +20,69 @@ export default function Profile() {
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [pw, setPw] = useState("");
 
-  const save = () => {
-    toast.success("Profile updated (static mode)");
+  const save = async () => {
+    if (!profile?.id) return;
+    
+    const { error } = await supabase
+      .from('admin_users')
+      .update({
+        full_name: name,
+        phone: phone,
+        job_title: title,
+        bio: bio
+      })
+      .eq('id', profile.id);
+
+    if (error) {
+      toast.error(`Error: ${error.message}`);
+    } else {
+      toast.success("Profile updated successfully!");
+      // Optionally trigger a reload of the profile context here if needed,
+      // but a page refresh will fetch the newest data.
+    }
   };
 
-  const changePw = () => {
+  const changePw = async () => {
     if (pw.length < 8) return toast.error("Use at least 8 characters.");
-    setPw("");
-    toast.success("Password updated (static mode)");
+    
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    
+    if (error) {
+      toast.error(`Error: ${error.message}`);
+    } else {
+      setPw("");
+      toast.success("Password updated successfully!");
+    }
   };
 
-  const uploadPhoto = () => {
-    toast.success("Photo updated (static mode)");
+  const uploadPhoto = async (file: File) => {
+    if (!profile?.id) return;
+    
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${profile.id}/avatar.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      return toast.error(`Upload error: ${uploadError.message}`);
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from('admin_users')
+      .update({ photo_url: publicUrl })
+      .eq('id', profile.id);
+
+    if (updateError) {
+      toast.error(`Error updating profile: ${updateError.message}`);
+    } else {
+      toast.success("Photo updated successfully! Refresh to see changes.");
+    }
   };
 
   return (
