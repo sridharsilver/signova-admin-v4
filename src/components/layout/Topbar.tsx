@@ -102,7 +102,23 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               <UserIcon className="h-4 w-4 mr-2" /> Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={async () => { await signOut(); navigate("/login"); }}>
+            <DropdownMenuItem 
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  // Add a timeout to prevent hanging on sign out
+                  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+                  await Promise.race([signOut(), timeout]);
+                } catch (err) {
+                  console.error("Sign out error:", err);
+                  // Force clear if it hangs
+                  localStorage.clear();
+                  sessionStorage.clear();
+                } finally {
+                  window.location.href = "/login";
+                }
+              }}
+            >
               <LogOut className="h-4 w-4 mr-2" /> Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
