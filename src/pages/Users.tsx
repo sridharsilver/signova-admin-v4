@@ -131,21 +131,19 @@ export default function Users() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  {u.role === 'super_admin' ? (
-                    <span className="text-xs text-muted-foreground italic">Full Access</span>
-                  ) : (
-                    <div className="flex flex-wrap gap-1">
-                      {u.permissions?.length > 0 ? (
-                        u.permissions.map(p => (
-                          <span key={p} className="px-2 py-0.5 rounded-full text-[10px] bg-accent border border-border">
-                            {p}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-muted-foreground">None</span>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {u.permissions?.length > 0 ? (
+                      u.permissions.map(p => (
+                        <span key={p} className="px-2 py-0.5 rounded-full text-[10px] bg-accent border border-border">
+                          {p}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {u.role === 'super_admin' ? 'Full Access' : 'None'}
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Button variant="outline" size="sm" onClick={() => handleEdit(u)}>
@@ -181,22 +179,20 @@ export default function Users() {
               </Select>
             </div>
 
-            {role !== "super_admin" && (
-              <div className="space-y-3">
-                <Label className="text-base font-semibold block border-t pt-4">Module Permissions</Label>
-                {AVAILABLE_MODULES.map(mod => (
-                  <label key={mod.id} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent/50 transition-colors">
-                    <input 
-                      type="checkbox" 
-                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      checked={permissions.includes(mod.id)}
-                      onChange={() => togglePermission(mod.id)}
-                    />
-                    <span className="text-sm font-medium">{mod.label}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+            <div className="space-y-3">
+              <Label className="text-base font-semibold block border-t pt-4">Module Permissions</Label>
+              {AVAILABLE_MODULES.map(mod => (
+                <label key={mod.id} className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-accent/50 transition-colors">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    checked={permissions.includes(mod.id)}
+                    onChange={() => togglePermission(mod.id)}
+                  />
+                  <span className="text-sm font-medium">{mod.label}</span>
+                </label>
+              ))}
+            </div>
 
             <Button onClick={handleSave} disabled={saving} className="w-full gradient-primary text-white mt-4">
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShieldCheck className="h-4 w-4 mr-2" />}
