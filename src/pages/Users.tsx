@@ -161,6 +161,7 @@ export default function Users() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit User Access</DialogTitle>
+            <DialogDescription className="sr-only">Update the user's role and module permissions.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div>
