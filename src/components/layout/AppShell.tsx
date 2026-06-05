@@ -14,7 +14,7 @@ export function AppShell() {
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetContent side="left" className="p-0 w-64">
           <div className="md:hidden">
-            <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} />
+            <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} isMobile={true} />
           </div>
         </SheetContent>
       </Sheet>

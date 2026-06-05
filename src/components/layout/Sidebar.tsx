@@ -7,15 +7,17 @@ import logoWhite from "@/assets/signova-logo-white.png";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth";
 
-export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
+export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: boolean; onToggle: () => void; isMobile?: boolean }) {
   const { pathname } = useLocation();
   const { theme } = useTheme();
   const { hasPermission, isSuperAdmin } = useAuth();
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300 sticky top-0 h-screen",
-        collapsed ? "w-[72px]" : "w-64"
+        "flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300",
+        !isMobile && "hidden md:flex sticky top-0 h-screen",
+        isMobile && "h-full w-full",
+        !isMobile && (collapsed ? "w-[72px]" : "w-64")
       )}
     >
       <div className="flex items-center gap-2 px-4 h-16 border-b border-sidebar-border">

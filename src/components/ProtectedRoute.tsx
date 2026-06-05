@@ -7,11 +7,7 @@ export function ProtectedRoute({ children, module }: { children: React.ReactNode
   const loc = useLocation();
 
   if (loading) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <div className="h-screen w-full bg-background" />;
   }
 
   if (!user) {
