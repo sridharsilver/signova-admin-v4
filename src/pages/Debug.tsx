@@ -2,23 +2,31 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function Debug() {
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
+  const [state, setState] = useState<any>({ status: "loading..." });
 
   useEffect(() => {
     async function load() {
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
-        setError("Not logged in");
-        return;
-      }
-      
-      const { data: userData, error: userError } = await supabase
-        .from("admin_users")
-        .select("*");
+      try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !sessionData.session) {
+          setState({ status: "Not logged in", sessionError });
+          return;
+        }
         
-      if (userError) setError(userError);
-      else setData(userData);
+        const { data: userData, error: userError } = await supabase
+          .from("admin_users")
+          .select("*");
+          
+        setState({
+          status: "Loaded",
+          user_id: sessionData.session.user.id,
+          user_email: sessionData.session.user.email,
+          db_error: userError,
+          db_data: userData
+        });
+      } catch (e: any) {
+        setState({ status: "Crash", error: e?.message || String(e) });
+      }
     }
     load();
   }, []);
@@ -27,7 +35,7 @@ export default function Debug() {
     <div style={{ padding: 40, fontFamily: "monospace", color: "white" }}>
       <h1>Debug DB Data</h1>
       <pre style={{ background: "#222", padding: 20 }}>
-        {error ? JSON.stringify(error, null, 2) : JSON.stringify(data, null, 2)}
+        {JSON.stringify(state, null, 2)}
       </pre>
     </div>
   );
