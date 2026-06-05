@@ -8,21 +8,24 @@ import { Search, QrCode, Download, Image as ImageIcon, LayoutGrid, List } from "
 import { Product } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
 
-function getLabeledQRSource(svgElement: HTMLElement, productName: string, productSku: string, type: 'product' | 'technical') {
+function getLabeledQRSource(svgElement: HTMLElement, productName: string | null | undefined, productSku: string | null | undefined, type: 'product' | 'technical') {
   const serializer = new XMLSerializer();
   let qrSource = serializer.serializeToString(svgElement);
   qrSource = qrSource.replace(/xmlns="[^"]*"/g, ""); // strip xmlns so it inherits from parent
   
-  const escapeXml = (unsafe: string) => unsafe.replace(/[<>&'"]/g, (c) => {
-    switch (c) {
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '&': return '&amp;';
-      case '\'': return '&apos;';
-      case '"': return '&quot;';
-      default: return c;
-    }
-  });
+  const escapeXml = (unsafe: string | null | undefined) => {
+    if (!unsafe) return '';
+    return unsafe.replace(/[<>&'"]/g, (c) => {
+      switch (c) {
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        case '&': return '&amp;';
+        case '\'': return '&apos;';
+        case '"': return '&quot;';
+        default: return c;
+      }
+    });
+  };
 
   const name = escapeXml(productName);
   const sku = escapeXml(productSku);
