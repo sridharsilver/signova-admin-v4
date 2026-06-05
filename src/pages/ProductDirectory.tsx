@@ -352,15 +352,17 @@ export default function ProductDirectory() {
             <div key="grid" className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 bg-muted/5">
               {filteredProducts.map((product, i) => (
                 <div key={product.id} className="bg-white/60 dark:bg-card/40 border border-white/40 dark:border-white/10 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-1 group flex flex-col animate-in fade-in zoom-in-95" style={{ animationDelay: `${i * 50}ms`, animationFillMode: "both" }}>
-                   <div className="relative overflow-hidden flex items-center justify-center bg-white rounded-t-3xl p-2 border border-muted/20">
-                     {product.image_url ? (
-                       <img 
-                         src={getProductImageUrl(product.image_url)} 
-                         alt={product.name}
-                         className="object-contain w-full h-full max-h-64 group-hover:scale-105 transition-transform duration-300" />
-                     ) : (
-                       <ImageIcon className="h-24 w-24 text-muted-foreground/20" />
-                     )}
+                  <div className="aspect-[4/3] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-muted/30 via-muted/10 to-transparent p-6">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    {product.image_url ? (
+                      <img 
+                        src={getProductImageUrl(product.image_url)} 
+                        alt={product.name}
+                        className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700 drop-shadow-md relative z-10"
+                      />
+                    ) : (
+                      <ImageIcon className="h-16 w-16 text-muted-foreground/20 relative z-10" />
+                    )}
                     <div className="absolute top-4 left-4 z-20">
                       <span className="text-[10px] font-mono bg-white/80 dark:bg-black/60 backdrop-blur-md text-foreground px-3 py-1.5 rounded-xl border border-white/20 dark:border-white/10 shadow-sm transition-transform duration-300 group-hover:scale-105 inline-block">
                         {product.sku}
