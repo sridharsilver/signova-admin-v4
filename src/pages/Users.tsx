@@ -126,7 +126,7 @@ export default function Users() {
                     u.role === 'manager' ? 'bg-amber-500/20 text-amber-600' :
                     'bg-secondary text-secondary-foreground'
                   }`}>
-                    {u.role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    {u.role ? u.role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'No Role'}
                   </span>
                 </td>
                 <td className="px-6 py-4">

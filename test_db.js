@@ -1,14 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-
+const supabaseUrl = 'https://tdemraprfvdlbagemwfs.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZW1yYXByZnZkbGJhZ2Vtd2ZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTU0NDksImV4cCI6MjA5MzU3MTQ0OX0.6Bz71cKjbVOisO1dlUlUn_URAxkg5YgJtJHIeHsxmwU';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function test() {
-  const { data, error } = await supabase.from('products').select('*').limit(1);
-  if (error) console.error(error);
-  else console.log(data && data[0] ? Object.keys(data[0]) : 'no data');
+async function check() {
+  const { data, error } = await supabase.from('admin_users').select('*');
+  console.log(JSON.stringify(data, null, 2));
 }
-
-test();
+check();

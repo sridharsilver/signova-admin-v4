@@ -33,13 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Failsafe: force loading to false after 5 seconds no matter what
+    // Failsafe: force loading to false after 10 seconds no matter what
     const failsafe = setTimeout(() => {
       if (mounted && loading) {
         console.warn("Auth initialization timed out, forcing load completion.");
         setLoading(false);
       }
-    }, 5000);
+    }, 10000);
 
     async function loadAuth() {
       try {
@@ -85,7 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  let isFetching = false;
   const fetchProfile = async (userId: string) => {
+    if (isFetching) return;
+    isFetching = true;
     try {
       const { data, error } = await supabase
         .from("admin_users")
@@ -99,9 +102,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (data) {
         setProfile(data as Profile);
+      } else if (!error || error.code === "PGRST116") {
+        // If no profile exists, create a default one locally so it doesn't stay null
+        setProfile({
+          id: userId,
+          email: session?.user?.email || "",
+          role: "employee", // Default fallback
+          permissions: []
+        } as Profile);
       }
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);
+    } finally {
+      isFetching = false;
     }
   };
 
