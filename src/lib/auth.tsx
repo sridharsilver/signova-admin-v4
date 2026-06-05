@@ -41,6 +41,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 10000);
 
+    let profilePromise: Promise<void> | null = null;
+    const fetchProfile = async (userId: string) => {
+      if (profilePromise) return profilePromise;
+      
+      profilePromise = (async () => {
+        try {
+          const { data, error } = await supabase
+            .from("admin_users")
+            .select("*")
+            .eq("id", userId)
+            .single();
+            
+          if (error && error.code !== "PGRST116") {
+            console.error("Error fetching profile:", error);
+          }
+          
+          if (data) {
+            setProfile(data as Profile);
+          } else if (!error || error.code === "PGRST116") {
+            setProfile({
+              id: userId,
+              email: session?.user?.email || "",
+              role: "employee",
+              permissions: []
+            } as Profile);
+          }
+        } catch (error) {
+          console.error("Unexpected error fetching profile:", error);
+        }
+      })();
+      
+      try {
+        await profilePromise;
+      } finally {
+        profilePromise = null;
+      }
+    };
+
     async function loadAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -84,39 +122,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
-
-  let isFetching = false;
-  const fetchProfile = async (userId: string) => {
-    if (isFetching) return;
-    isFetching = true;
-    try {
-      const { data, error } = await supabase
-        .from("admin_users")
-        .select("*")
-        .eq("id", userId)
-        .single();
-        
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching profile:", error);
-      }
-      
-      if (data) {
-        setProfile(data as Profile);
-      } else if (!error || error.code === "PGRST116") {
-        // If no profile exists, create a default one locally so it doesn't stay null
-        setProfile({
-          id: userId,
-          email: session?.user?.email || "",
-          role: "employee", // Default fallback
-          permissions: []
-        } as Profile);
-      }
-    } catch (error) {
-      console.error("Unexpected error fetching profile:", error);
-    } finally {
-      isFetching = false;
-    }
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
