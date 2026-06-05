@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, ChevronLeft, Package, ListTree } from "lucide-react";
+import { LayoutDashboard, ChevronLeft, Package, ListTree, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/signova-logo.png";
@@ -57,7 +57,20 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
               )}
             >
               <Package className="h-[18px] w-[18px] shrink-0" />
-              {!collapsed && <span className="truncate">Products</span>}
+              {!collapsed && <span className="truncate">Manage Products</span>}
+            </NavLink>
+
+            <NavLink
+              to="/products/directory"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                pathname === "/products/directory"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                  : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
+              )}
+            >
+              <QrCode className="h-[18px] w-[18px] shrink-0" />
+              {!collapsed && <span className="truncate">Product QR Codes</span>}
             </NavLink>
 
             <NavLink

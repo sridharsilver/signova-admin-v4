@@ -1,0 +1,273 @@
+import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/common/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { QRCodeSVG } from "qrcode.react";
+import { Search, QrCode, Download, Image as ImageIcon } from "lucide-react";
+import { Product } from "@/types/products";
+import { productService, getProductImageUrl } from "@/services/productService";
+
+function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
+  if (!product) return null;
+  const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
+
+  return (
+    <div className="flex items-center gap-2">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-blue-50 hover:bg-blue-100 hover:text-blue-600 text-blue-500"} title="Product Page QR">
+            <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
+            {showLabels && "Product Page"}
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
+          <DialogHeader>
+            <DialogTitle className="text-center mb-2">Product Page QR</DialogTitle>
+            <DialogDescription className="text-center">QR Code linking to the main product page.</DialogDescription>
+          </DialogHeader>
+          <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
+            <QRCodeSVG 
+              id={`qr-svg-product-${product.id}`}
+              value={`${frontendUrl}/products/${product.slug}`} 
+              size={200} 
+            />
+          </div>
+          <div className="w-full bg-secondary/50 rounded-xl p-3 mb-4 flex items-center justify-between border border-border/50">
+            <span className="text-xs text-muted-foreground truncate mr-3 select-all font-mono">
+              {`${frontendUrl}/products/${product.slug}`}
+            </span>
+            <a 
+              href={`${frontendUrl}/products/${product.slug}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-primary hover:underline whitespace-nowrap"
+            >
+              Open
+            </a>
+          </div>
+          <div className="flex w-full gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const svg = document.getElementById(`qr-svg-product-${product.id}`);
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${product.slug}-page-qr.svg`;
+                a.click();
+              }}
+              className="flex-1 flex justify-center items-center gap-2"
+            >
+              <Download className="size-4" /> SVG
+            </Button>
+            <Button
+              onClick={() => {
+                const svg = document.getElementById(`qr-svg-product-${product.id}`);
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const img = new Image();
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                img.onload = () => {
+                  const canvas = document.createElement("canvas");
+                  canvas.width = 1000;
+                  canvas.height = 1000;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) return;
+                  ctx.fillStyle = "white";
+                  ctx.fillRect(0, 0, 1000, 1000);
+                  ctx.drawImage(img, 75, 75, 850, 850);
+                  const pngUrl = canvas.toDataURL("image/png");
+                  const a = document.createElement("a");
+                  a.href = pngUrl;
+                  a.download = `${product.slug}-page-qr.png`;
+                  a.click();
+                };
+                img.src = url;
+              }}
+              className="flex-1 flex justify-center items-center gap-2"
+            >
+              <Download className="size-4" /> PNG
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-600 text-emerald-500"} title="Technical Specs QR">
+            <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
+            {showLabels && "Tech Specs"}
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
+          <DialogHeader>
+            <DialogTitle className="text-center mb-2">Technical Specifications QR</DialogTitle>
+            <DialogDescription className="text-center">QR Code linking to the technical specifications page.</DialogDescription>
+          </DialogHeader>
+          <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
+            <QRCodeSVG 
+              id={`qr-svg-technical-${product.id}`}
+              value={`${frontendUrl}/tech-specs/${product.slug}`} 
+              size={200} 
+            />
+          </div>
+          <div className="w-full bg-secondary/50 rounded-xl p-3 mb-4 flex items-center justify-between border border-border/50">
+            <span className="text-xs text-muted-foreground truncate mr-3 select-all font-mono">
+              {`${frontendUrl}/tech-specs/${product.slug}`}
+            </span>
+            <a 
+              href={`${frontendUrl}/tech-specs/${product.slug}`} 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-primary hover:underline whitespace-nowrap"
+            >
+              Open
+            </a>
+          </div>
+          <div className="flex w-full gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const svg = document.getElementById(`qr-svg-technical-${product.id}`);
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${product.slug}-tech-qr.svg`;
+                a.click();
+              }}
+              className="flex-1 flex justify-center items-center gap-2"
+            >
+              <Download className="size-4" /> SVG
+            </Button>
+            <Button
+              onClick={() => {
+                const svg = document.getElementById(`qr-svg-technical-${product.id}`);
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const img = new Image();
+                const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                img.onload = () => {
+                  const canvas = document.createElement("canvas");
+                  canvas.width = 1000;
+                  canvas.height = 1000;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) return;
+                  ctx.fillStyle = "white";
+                  ctx.fillRect(0, 0, 1000, 1000);
+                  ctx.drawImage(img, 75, 75, 850, 850);
+                  const pngUrl = canvas.toDataURL("image/png");
+                  const a = document.createElement("a");
+                  a.href = pngUrl;
+                  a.download = `${product.slug}-tech-qr.png`;
+                  a.click();
+                };
+                img.src = url;
+              }}
+              className="flex-1 flex justify-center items-center gap-2"
+            >
+              <Download className="size-4" /> PNG
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export default function ProductDirectory() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await productService.getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.sku.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <PageHeader 
+        title="Product QR Directory" 
+        description="A read-only view of products and their QR codes for quick access." 
+      />
+
+      <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-border bg-muted/20">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search products by name or SKU..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 bg-background"
+            />
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-muted-foreground">Loading products...</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground">
+            No products found matching your search.
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="flex items-center p-4 hover:bg-muted/30 transition-colors">
+                <div className="h-16 w-16 rounded-xl border border-border bg-muted/50 overflow-hidden shrink-0 flex items-center justify-center mr-4">
+                  {product.images && product.images.length > 0 ? (
+                    <img 
+                      src={getProductImageUrl(product.images[0])} 
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0 pr-4">
+                  <h3 className="font-semibold text-foreground truncate">{product.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground font-mono bg-secondary/50 px-2 py-0.5 rounded-md border border-border/50">
+                      {product.sku}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="shrink-0">
+                  <ProductQRDialogs product={product} showLabels={true} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
