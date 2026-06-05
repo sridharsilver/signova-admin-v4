@@ -7,6 +7,7 @@ import { Profile, useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AVAILABLE_MODULES = [
   { id: "products", label: "Manage Products & Categories" },
@@ -119,8 +120,14 @@ export default function Users() {
                   <div className="text-xs text-muted-foreground">{u.email}</div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${u.role === 'super_admin' ? 'bg-primary/20 text-primary' : 'bg-secondary text-secondary-foreground'}`}>
-                    {u.role === 'super_admin' ? 'Super Admin' : 'Employee'}
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    u.role === 'super_admin' ? 'bg-primary/20 text-primary' : 
+                    u.role === 'admin' ? 'bg-blue-500/20 text-blue-600' :
+                    u.role === 'managing_director' ? 'bg-purple-500/20 text-purple-600' :
+                    u.role === 'manager' ? 'bg-amber-500/20 text-amber-600' :
+                    'bg-secondary text-secondary-foreground'
+                  }`}>
+                    {u.role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                   </span>
                 </td>
                 <td className="px-6 py-4">
@@ -160,22 +167,18 @@ export default function Users() {
           <div className="space-y-6 py-4">
             <div>
               <Label className="text-base font-semibold mb-3 block">Role</Label>
-              <div className="flex gap-2">
-                <Button 
-                  variant={role === "employee" ? "default" : "outline"} 
-                  onClick={() => setRole("employee")}
-                  className={role === "employee" ? "gradient-primary text-white" : ""}
-                >
-                  Employee
-                </Button>
-                <Button 
-                  variant={role === "super_admin" ? "default" : "outline"} 
-                  onClick={() => setRole("super_admin")}
-                  className={role === "super_admin" ? "bg-red-500 hover:bg-red-600 text-white" : ""}
-                >
-                  Super Admin
-                </Button>
-              </div>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="employee">Employee</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="managing_director">Managing Director</SelectItem>
+                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {role !== "super_admin" && (
