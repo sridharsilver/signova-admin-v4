@@ -21,7 +21,7 @@ const mockHols: Holiday[] = [
 ];
 
 export default function Settings() {
-  const { isAdminOrHr } = useAuth();
+  const { isSuperAdmin } = useAuth();
   const [depts, setDepts] = useState<Dept[]>(mockDepts);
   const [hols, setHols] = useState<Holiday[]>(mockHols);
   const [newDept, setNewDept] = useState({ name: "", code: "" });
@@ -57,12 +57,12 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <PageHeader title="Settings" description="Manage organisation configuration." />
-      {!isAdminOrHr && <div className="glass-card p-6 text-sm text-muted-foreground">Only HR and admins can change settings.</div>}
+      {!isSuperAdmin && <div className="glass-card p-6 text-sm text-muted-foreground">Only administrators can change settings.</div>}
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="glass-card p-5">
           <h3 className="font-semibold mb-3">Departments</h3>
-          {isAdminOrHr && (
+          {isSuperAdmin && (
             <div className="flex gap-2 mb-4">
               <Input placeholder="Name" value={newDept.name} onChange={(e) => setNewDept({ ...newDept, name: e.target.value })} />
               <Input placeholder="Code" className="w-24" value={newDept.code} onChange={(e) => setNewDept({ ...newDept, code: e.target.value.toUpperCase() })} />
@@ -73,7 +73,7 @@ export default function Settings() {
             {depts.map((d) => (
               <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/40">
                 <div><div className="font-medium">{d.name}</div><div className="text-xs text-muted-foreground">{d.code}</div></div>
-                {isAdminOrHr && <Button size="icon" variant="ghost" onClick={() => delDept(d.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+                {isSuperAdmin && <Button size="icon" variant="ghost" onClick={() => delDept(d.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
               </div>
             ))}
           </div>
@@ -81,7 +81,7 @@ export default function Settings() {
 
         <div className="glass-card p-5">
           <h3 className="font-semibold mb-3">Holidays</h3>
-          {isAdminOrHr && (
+          {isSuperAdmin && (
             <div className="flex gap-2 mb-4">
               <Input type="date" value={newHol.date} onChange={(e) => setNewHol({ ...newHol, date: e.target.value })} />
               <Input placeholder="Name" value={newHol.name} onChange={(e) => setNewHol({ ...newHol, name: e.target.value })} />
@@ -92,7 +92,7 @@ export default function Settings() {
             {hols.map((h) => (
               <div key={h.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/40">
                 <div><div className="font-medium">{h.name}</div><div className="text-xs text-muted-foreground">{h.date}</div></div>
-                {isAdminOrHr && <Button size="icon" variant="ghost" onClick={() => delHol(h.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+                {isSuperAdmin && <Button size="icon" variant="ghost" onClick={() => delHol(h.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
               </div>
             ))}
           </div>
@@ -100,7 +100,7 @@ export default function Settings() {
 
         <div className="glass-card p-5 lg:col-span-2">
           <h3 className="font-semibold mb-3">System Configuration</h3>
-          {isAdminOrHr ? (
+          {isSuperAdmin ? (
             <div className="max-w-md space-y-4">
               <div className="space-y-2">
                 <Label>Frontend Public URL</Label>
