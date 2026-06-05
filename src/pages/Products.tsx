@@ -23,6 +23,8 @@ import { productService, getProductImageUrl } from "@/services/productService";
 
 function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
   if (!product) return null;
+  const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
+
   return (
     <>
       <Dialog>
@@ -39,7 +41,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
             <QRCodeSVG 
               id={`qr-svg-product-${product.id}`}
-              value={`${window.location.origin.replace('admin.', '')}/products/${product.slug}`} 
+              value={`${frontendUrl}/products/${product.slug}`} 
               size={200} 
             />
           </div>
@@ -48,10 +50,10 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           </p>
           <div className="w-full bg-secondary/50 rounded-xl p-3 mb-4 flex items-center justify-between border border-border/50">
             <span className="text-xs text-muted-foreground truncate mr-3 select-all font-mono">
-              {`${window.location.origin.replace('admin.', '')}/products/${product.slug}`}
+              {`${frontendUrl}/products/${product.slug}`}
             </span>
             <a 
-              href={`${window.location.origin.replace('admin.', '')}/products/${product.slug}`} 
+              href={`${frontendUrl}/products/${product.slug}`} 
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-bold text-primary hover:underline whitespace-nowrap"
@@ -124,7 +126,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
             <QRCodeSVG 
               id={`qr-svg-technical-${product.id}`}
-              value={`${window.location.origin.replace('admin.', '')}/tech-specs/${product.slug}`} 
+              value={`${frontendUrl}/tech-specs/${product.slug}`} 
               size={200} 
             />
           </div>
@@ -133,10 +135,10 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           </p>
           <div className="w-full bg-secondary/50 rounded-xl p-3 mb-4 flex items-center justify-between border border-border/50">
             <span className="text-xs text-muted-foreground truncate mr-3 select-all font-mono">
-              {`${window.location.origin.replace('admin.', '')}/tech-specs/${product.slug}`}
+              {`${frontendUrl}/tech-specs/${product.slug}`}
             </span>
             <a 
-              href={`${window.location.origin.replace('admin.', '')}/tech-specs/${product.slug}`} 
+              href={`${frontendUrl}/tech-specs/${product.slug}`} 
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-bold text-primary hover:underline whitespace-nowrap"

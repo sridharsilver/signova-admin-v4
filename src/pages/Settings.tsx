@@ -26,6 +26,12 @@ export default function Settings() {
   const [hols, setHols] = useState<Holiday[]>(mockHols);
   const [newDept, setNewDept] = useState({ name: "", code: "" });
   const [newHol, setNewHol] = useState({ date: "", name: "" });
+  const [frontendUrl, setFrontendUrl] = useState(() => localStorage.getItem('frontendUrl') || "https://1signova.pages.dev");
+
+  const saveFrontendUrl = () => {
+    localStorage.setItem('frontendUrl', frontendUrl);
+    toast.success("Frontend URL updated");
+  };
 
   const addDept = () => {
     if (!newDept.name || !newDept.code) return;
@@ -90,6 +96,30 @@ export default function Settings() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="glass-card p-5 lg:col-span-2">
+          <h3 className="font-semibold mb-3">System Configuration</h3>
+          {isAdminOrHr ? (
+            <div className="max-w-md space-y-4">
+              <div className="space-y-2">
+                <Label>Frontend Public URL</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={frontendUrl} 
+                    onChange={(e) => setFrontendUrl(e.target.value)} 
+                    placeholder="e.g. https://1signova.pages.dev" 
+                  />
+                  <Button onClick={saveFrontendUrl}>Save</Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Used for generating QR codes to point to the correct public website.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">Only administrators can change system configuration.</div>
+          )}
         </div>
       </div>
     </div>
