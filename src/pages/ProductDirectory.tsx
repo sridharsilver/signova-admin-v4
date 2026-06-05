@@ -282,7 +282,7 @@ export default function ProductDirectory() {
 
         <div className="relative min-h-[400px]">
           {loading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground space-y-4">
+            <div key="loading" className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground space-y-4">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full blur-md bg-primary/20 animate-pulse" />
                 <QrCode className="h-10 w-10 text-primary animate-bounce relative z-10" />
@@ -290,7 +290,7 @@ export default function ProductDirectory() {
               <p className="font-medium animate-pulse">Loading directory...</p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground space-y-4">
+            <div key="empty" className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground space-y-4">
               <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mb-2">
                 <Search className="h-8 w-8 text-muted-foreground/50" />
               </div>
@@ -298,7 +298,7 @@ export default function ProductDirectory() {
               <p className="text-sm">Try adjusting your search terms.</p>
             </div>
           ) : viewMode === "list" ? (
-            <div className="divide-y divide-border/30 bg-white/20 dark:bg-black/10">
+            <div key="list" className="divide-y divide-border/30 bg-white/20 dark:bg-black/10">
               {filteredProducts.map((product, i) => (
                 <div key={product.id} className="flex flex-col sm:flex-row sm:items-center p-5 hover:bg-white/60 dark:hover:bg-white/5 transition-all duration-300 gap-6 group animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 50}ms`, animationFillMode: "both" }}>
                   <div className="flex items-center flex-1 min-w-0">
@@ -332,7 +332,7 @@ export default function ProductDirectory() {
               ))}
             </div>
           ) : (
-            <div className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 bg-muted/5">
+            <div key="grid" className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 bg-muted/5">
               {filteredProducts.map((product, i) => (
                 <div key={product.id} className="bg-white/60 dark:bg-card/40 border border-white/40 dark:border-white/10 rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 hover:-translate-y-1 group flex flex-col animate-in fade-in zoom-in-95" style={{ animationDelay: `${i * 50}ms`, animationFillMode: "both" }}>
                   <div className="aspect-[4/3] relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-muted/30 via-muted/10 to-transparent p-6">
