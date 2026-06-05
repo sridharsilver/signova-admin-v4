@@ -145,10 +145,12 @@ export default function Users() {
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(u)}>
-                    <UserCog className="h-4 w-4 mr-2" />
-                    Edit Access
-                  </Button>
+                  {u.role !== 'super_admin' && (
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(u)}>
+                      <UserCog className="h-4 w-4 mr-2" />
+                      Edit Access
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
