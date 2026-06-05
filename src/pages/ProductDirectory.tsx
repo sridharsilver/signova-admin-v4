@@ -88,16 +88,15 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'product');
                 const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.style.display = "none";
-                a.href = url;
-                a.download = `${product.slug}-page-qr.svg`;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }, 100);
+                
+                // Open in new tab to avoid mobile browser navigation crashes
+                const newWindow = window.open(url, '_blank');
+                if (!newWindow) {
+                  // Fallback if popup blocked
+                  window.location.href = url;
+                }
+                
+                setTimeout(() => URL.revokeObjectURL(url), 60000); // Clean up after a minute
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
@@ -126,17 +125,16 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   canvas.toBlob((pngBlob) => {
                     if (!pngBlob) return;
                     const pngUrl = URL.createObjectURL(pngBlob);
-                    const a = document.createElement("a");
-                    a.style.display = "none";
-                    a.href = pngUrl;
-                    a.download = `${product.slug}-page-qr.png`;
-                    document.body.appendChild(a);
-                    a.click();
+                    
+                    const newWindow = window.open(pngUrl, '_blank');
+                    if (!newWindow) {
+                      window.location.href = pngUrl;
+                    }
+                    
                     setTimeout(() => {
-                      document.body.removeChild(a);
                       URL.revokeObjectURL(pngUrl);
                       URL.revokeObjectURL(url);
-                    }, 100);
+                    }, 60000);
                   }, "image/png");
                 };
                 img.src = url;
@@ -191,16 +189,13 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                 const source = getLabeledQRSource(svg, product.name, product.sku, 'technical');
                 const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.style.display = "none";
-                a.href = url;
-                a.download = `${product.slug}-tech-qr.svg`;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }, 100);
+                
+                const newWindow = window.open(url, '_blank');
+                if (!newWindow) {
+                  window.location.href = url;
+                }
+                
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
               }}
               className="flex-1 flex justify-center items-center gap-2"
             >
@@ -229,17 +224,16 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
                   canvas.toBlob((pngBlob) => {
                     if (!pngBlob) return;
                     const pngUrl = URL.createObjectURL(pngBlob);
-                    const a = document.createElement("a");
-                    a.style.display = "none";
-                    a.href = pngUrl;
-                    a.download = `${product.slug}-tech-qr.png`;
-                    document.body.appendChild(a);
-                    a.click();
+                    
+                    const newWindow = window.open(pngUrl, '_blank');
+                    if (!newWindow) {
+                      window.location.href = pngUrl;
+                    }
+                    
                     setTimeout(() => {
-                      document.body.removeChild(a);
                       URL.revokeObjectURL(pngUrl);
                       URL.revokeObjectURL(url);
-                    }, 100);
+                    }, 60000);
                   }, "image/png");
                 };
                 img.src = url;
