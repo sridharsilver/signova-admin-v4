@@ -9,9 +9,17 @@ import { Product } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
 
 function getLabeledQRSource(svgElement: HTMLElement, productName: string | null | undefined, productSku: string | null | undefined, type: 'product' | 'technical') {
-  const serializer = new XMLSerializer();
-  let qrSource = serializer.serializeToString(svgElement);
-  qrSource = qrSource.replace(/xmlns="[^"]*"/g, ""); // strip xmlns so it inherits from parent
+  let qrSource = '';
+  if (svgElement && (svgElement as any).outerHTML) {
+    qrSource = (svgElement as any).outerHTML;
+  } else {
+    const serializer = new XMLSerializer();
+    qrSource = serializer.serializeToString(svgElement);
+  }
+  // Ensure qrSource is a string before replace
+  if (typeof qrSource === 'string') {
+    qrSource = qrSource.replace(/xmlns=\"[^\"]*\"/g, ''); // strip xmlns so it inherits from parent
+  }
   
   const escapeXml = (unsafe: string | null | undefined) => {
     if (!unsafe) return '';
