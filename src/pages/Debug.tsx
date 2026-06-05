@@ -7,15 +7,21 @@ export default function Debug() {
   useEffect(() => {
     async function load() {
       try {
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !sessionData.session) {
+        setState({ status: "loading session..." });
+        
+        const sessionPromise = supabase.auth.getSession();
+        const timeout1 = new Promise((_, reject) => setTimeout(() => reject(new Error("getSession TIMEOUT")), 5000));
+        const { data: sessionData, error: sessionError } = await Promise.race([sessionPromise, timeout1]) as any;
+        
+        if (sessionError || !sessionData?.session) {
           setState({ status: "Not logged in", sessionError });
           return;
         }
         
-        const { data: userData, error: userError } = await supabase
-          .from("admin_users")
-          .select("*");
+        setState({ status: "loading DB..." });
+        const dbPromise = supabase.from("admin_users").select("*");
+        const timeout2 = new Promise((_, reject) => setTimeout(() => reject(new Error("Database Query TIMEOUT")), 5000));
+        const { data: userData, error: userError } = await Promise.race([dbPromise, timeout2]) as any;
           
         setState({
           status: "Loaded",
