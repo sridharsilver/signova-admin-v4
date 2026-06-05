@@ -47,11 +47,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       profilePromise = (async () => {
         try {
-          const { data, error } = await supabase
+          const dbPromise = supabase
             .from("admin_users")
             .select("*")
             .eq("id", userId)
             .single();
+            
+          const timeoutPromise = new Promise<any>((_, reject) => 
+            setTimeout(() => reject(new Error("Database query timed out")), 5000)
+          );
+          
+          const { data, error } = await Promise.race([dbPromise, timeoutPromise]);
             
           if (error && error.code !== "PGRST116") {
             console.error("Error fetching profile:", error);
@@ -81,7 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function loadAuth() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise<any>((_, reject) => 
+          setTimeout(() => reject(new Error("getSession timed out")), 5000)
+        );
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
         
         if (!mounted) return;
 
@@ -95,6 +105,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
+        // Fallback to clear session if it timed out
+        setSession(null);
+        setUser(null);
+        setProfile(null);
       } finally {
         if (mounted) setLoading(false);
         clearTimeout(failsafe);
