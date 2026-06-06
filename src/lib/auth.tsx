@@ -50,41 +50,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 10000);
 
-    let profilePromise: Promise<void> | null = null;
     const fetchProfile = async (userId: string) => {
-      if (profilePromise) return profilePromise;
-      
-      profilePromise = (async () => {
-        try {
-          const { data, error } = await supabase
-            .from("admin_users")
-            .select("*")
-            .eq("id", userId)
-            .single();
-            
-          if (error && error.code !== "PGRST116") {
-            console.error("Error fetching profile:", error);
-          }
-          
-          if (data) {
-            setProfile(data as Profile);
-          } else if (!error || error.code === "PGRST116") {
-            setProfile({
-              id: userId,
-              email: session?.user?.email || "",
-              role: "employee",
-              permissions: []
-            } as Profile);
-          }
-        } catch (error) {
-          console.error("Unexpected error fetching profile:", error);
-        }
-      })();
-      
       try {
-        await profilePromise;
-      } finally {
-        profilePromise = null;
+        const { data, error } = await supabase
+          .from("admin_users")
+          .select("*")
+          .eq("id", userId)
+          .single();
+          
+        if (error && error.code !== "PGRST116") {
+          console.error("Error fetching profile:", error);
+        }
+        
+        if (data) {
+          setProfile(data as Profile);
+        } else if (!error || error.code === "PGRST116") {
+          setProfile({
+            id: userId,
+            email: session?.user?.email || "",
+            role: "employee",
+            permissions: []
+          } as Profile);
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching profile:", error);
       }
     };
 
