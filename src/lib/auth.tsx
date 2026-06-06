@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }, 10000);
 
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, currentSession: Session | null) => {
       try {
         const { data, error } = await supabase
           .from("admin_users")
@@ -62,18 +62,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Error fetching profile:", error);
         }
         
-        if (data) {
-          setProfile(data as Profile);
-        } else if (!error || error.code === "PGRST116") {
+        if (mounted) {
+          if (data) {
+            setProfile({
+              ...data,
+              role: data.role || "employee"
+            } as Profile);
+          } else if (!error || error.code === "PGRST116") {
+            setProfile({
+              id: userId,
+              email: currentSession?.user?.email || "",
+              role: "employee",
+              permissions: []
+            } as Profile);
+          } else {
+            // Fallback for other errors to ensure profile isn't permanently null
+            setProfile({
+              id: userId,
+              email: currentSession?.user?.email || "",
+              role: "employee",
+              permissions: []
+            } as Profile);
+          }
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching profile:", error);
+        if (mounted) {
           setProfile({
             id: userId,
-            email: session?.user?.email || "",
+            email: currentSession?.user?.email || "",
             role: "employee",
             permissions: []
           } as Profile);
         }
-      } catch (error) {
-        console.error("Unexpected error fetching profile:", error);
       }
     };
 
@@ -87,16 +108,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user.id, session);
         } else {
           setProfile(null);
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
-        // Fallback to clear session if it timed out
-        setSession(null);
-        setUser(null);
-        setProfile(null);
+        if (mounted) {
+          // Fallback to clear session if it timed out
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
       } finally {
         if (mounted) setLoading(false);
         clearTimeout(failsafe);
@@ -106,16 +129,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loadAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      if (event === "INITIAL_SESSION") return; // Handled by loadAuth
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session);
       } else {
         setProfile(null);
       }
-      setLoading(false);
-      clearTimeout(failsafe);
+      
+      if (mounted) {
+        setLoading(false);
+        clearTimeout(failsafe);
+      }
     });
 
     return () => {

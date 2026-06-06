@@ -271,7 +271,7 @@ export default function Products() {
   };
 
   const handleDownloadTemplate = () => {
-    const csvContent = `name,slug,category_slug,tag,description,uses,dosage,sizes_comma_separated,is_active,tech_title,tech_composition,tech_crops,tech_dose,qr_data\n"Grow Fast 500","grow-fast-500","chelated","Best Seller","Premium liquid fertilizer for rapid vegetative growth.","Apply to soil or via foliar spray.","5ml per Liter of water.","1L, 5L, 20L","true","Zinc Gluconate Zn- 12% (Liquid)","Active Ingredients (Minimum) - Standard","Suitable for all crops","250-500 ml per acre",""`;
+    const csvContent = `name,slug,category_slug,tag,image_url,description,uses,dosage,sizes,is_active,tech_title,tech_composition,tech_crops,tech_dose,qr_data\n"Grow Fast 500","grow-fast-500","chelated","Best Seller","","Premium liquid fertilizer for rapid vegetative growth.","Apply to soil or via foliar spray.","5ml per Liter of water.","{1L,5L,20L}","true","Zinc Gluconate Zn- 12% (Liquid)","First Ingredient (12%)\nSecond Ingredient (8%)","Suitable for all crops","250-500 ml per acre",""`;
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
