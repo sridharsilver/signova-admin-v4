@@ -54,9 +54,11 @@ function getLabeledQRSource(svgElement: HTMLElement, productName: string | null 
 function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
   if (!product) return null;
   const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
+  const showProductPageQR = localStorage.getItem('showProductPageQR') !== 'false';
 
   return (
     <div className={`flex gap-2 ${showLabels ? 'flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center' : 'items-center'}`}>
+      {showProductPageQR && (
       <Dialog>
         <DialogTrigger asChild>
           <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center justify-center gap-2 w-full sm:w-auto" : "h-10 w-10 bg-blue-50 hover:bg-blue-100 hover:text-blue-600 text-blue-500"} title="Product Page QR">
@@ -140,6 +142,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           </div>
         </DialogContent>
       </Dialog>
+      )}
 
       <Dialog>
         <DialogTrigger asChild>
