@@ -33,13 +33,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Failsafe: force loading to false after 10 seconds no matter what
+    // Verify Supabase configuration before attempting authentication
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Supabase configuration missing – set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      setLoading(false);
+      return;
+    }
+
+    // Failsafe: force loading to false after 5 seconds no matter what
     const failsafe = setTimeout(() => {
       if (mounted && loading) {
-        console.warn("Auth initialization timed out, forcing load completion.");
+        console.warn('Auth initialization timed out, forcing load completion.');
         setLoading(false);
       }
-    }, 10000);
+    }, 5000);
 
     let profilePromise: Promise<void> | null = null;
     const fetchProfile = async (userId: string) => {
