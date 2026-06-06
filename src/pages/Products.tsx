@@ -24,9 +24,11 @@ import { productService, getProductImageUrl } from "@/services/productService";
 function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
   if (!product) return null;
   const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
+  const showProductPageQR = localStorage.getItem('showProductPageQR') !== 'false';
 
   return (
     <>
+      {showProductPageQR && (
       <Dialog>
         <DialogTrigger asChild>
           <Button variant={showLabels ? "outline" : "ghost"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-8 w-8 hover:text-primary"} title="Product Page QR">
@@ -111,6 +113,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
           </div>
         </DialogContent>
       </Dialog>
+      )}
 
       <Dialog>
         <DialogTrigger asChild>
