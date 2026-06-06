@@ -423,13 +423,13 @@ export default function Products() {
             </div>
           ) : items.map((prod) => (
             <div key={prod.id} className="bg-white/60 dark:bg-card/40 border border-white/40 dark:border-white/10 rounded-3xl overflow-hidden glass-card rounded-xl flex flex-col group relative transition-all hover:shadow-lg">
-              <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <div className="flex gap-1 bg-background/80 backdrop-blur-md rounded-md p-0.5 shadow-sm">
                   <ProductQRDialogs product={prod} />
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { console.log('Edit product', prod.id); setEditingItem(prod); setOpen(true); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); e.stopPropagation(); console.log('Edit product', prod.id); setEditingItem(prod); setOpen(true); }}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => handleDelete(prod.id)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(prod.id); }}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
