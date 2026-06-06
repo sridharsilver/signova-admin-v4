@@ -11,7 +11,7 @@ export function ProtectedRoute({ children, module }: { children: React.ReactNode
       <div className="h-screen w-full flex flex-col items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
         <p className="text-muted-foreground font-medium">Authenticating...</p>
-        <p className="text-xs text-muted-foreground mt-2 max-w-sm text-center">If you are stuck on this screen, please check your internet connection or ensure Supabase is configured correctly.</p>
+
       </div>
     );
   }
