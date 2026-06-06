@@ -42,13 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Failsafe: force loading to false after 2 seconds no matter what
+    // Failsafe: force loading to false after 10 seconds to prevent permanent freeze
     const failsafe = setTimeout(() => {
       if (mounted && loading) {
-        console.warn('Auth initialization timed out, forcing load completion.');
+        console.warn('Auth initialization took too long, forcing load completion.');
         setLoading(false);
       }
-    }, 2000);
+    }, 10000);
 
     let profilePromise: Promise<void> | null = null;
     const fetchProfile = async (userId: string) => {
@@ -56,17 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       profilePromise = (async () => {
         try {
-          const dbPromise = supabase
+          const { data, error } = await supabase
             .from("admin_users")
             .select("*")
             .eq("id", userId)
             .single();
-            
-          const timeoutPromise = new Promise<any>((_, reject) => 
-            setTimeout(() => reject(new Error("Database query timed out")), 2000)
-          );
-          
-          const { data, error } = await Promise.race([dbPromise, timeoutPromise]);
             
           if (error && error.code !== "PGRST116") {
             console.error("Error fetching profile:", error);
@@ -96,11 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function loadAuth() {
       try {
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise<any>((_, reject) => 
-          setTimeout(() => reject(new Error("getSession timed out")), 2000)
-        );
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]);
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (!mounted) return;
 

@@ -56,10 +56,10 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
   const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex gap-2 ${showLabels ? 'flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center' : 'items-center'}`}>
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-blue-50 hover:bg-blue-100 hover:text-blue-600 text-blue-500"} title="Product Page QR">
+          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center justify-center gap-2 w-full sm:w-auto" : "h-10 w-10 bg-blue-50 hover:bg-blue-100 hover:text-blue-600 text-blue-500"} title="Product Page QR">
             <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
             {showLabels && <span>Product Page</span>}
           </Button>
@@ -143,7 +143,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
 
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center gap-2" : "h-10 w-10 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-600 text-emerald-500"} title="Technical Specs QR">
+          <Button variant={showLabels ? "outline" : "secondary"} size={showLabels ? "default" : "icon"} className={showLabels ? "flex items-center justify-center gap-2 w-full sm:w-auto" : "h-10 w-10 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-600 text-emerald-500"} title="Technical Specs QR">
             <QrCode className={showLabels ? "h-4 w-4" : "h-5 w-5"} />
             {showLabels && <span>Tech Specs</span>}
           </Button>
@@ -256,12 +256,12 @@ export default function ProductDirectory() {
   );
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col gap-2 relative z-10">
+    <div className="space-y-8 max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-4 md:mt-0">
+      <div className="flex flex-col gap-2 relative z-10 text-center sm:text-left">
         <div className="absolute -top-10 -left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10" />
         <div className="absolute -top-10 right-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10" />
-        <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">Product QR Directory</h1>
-        <p className="text-muted-foreground text-lg max-w-2xl">Access and download high-quality QR codes for your product catalog in a beautifully designed directory.</p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">Product QR Directory</h1>
+        <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto sm:mx-0">Access and download high-quality QR codes for your product catalog in a beautifully designed directory.</p>
       </div>
 
       <div className="glass-card rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl shadow-black/5 overflow-hidden bg-white/40 dark:bg-black/40 backdrop-blur-2xl relative z-10">
@@ -342,7 +342,7 @@ export default function ProductDirectory() {
                     </div>
                   </div>
 
-                  <div className="shrink-0 flex items-center gap-3 border-t sm:border-t-0 pt-5 sm:pt-0 mt-2 sm:mt-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t sm:border-t-0 pt-4 sm:pt-0 mt-4 sm:mt-0 opacity-100 sm:opacity-80 group-hover:opacity-100 transition-opacity w-full sm:w-auto">
                     <ProductQRDialogs product={product} showLabels={true} />
                   </div>
                 </div>

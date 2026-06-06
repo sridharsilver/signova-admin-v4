@@ -576,48 +576,6 @@ function ProductForm({
     setCompositionItems(compositionItems.filter((_, i) => i !== index));
   };
 
-  const parseLegacyData = () => {
-    if (!formData.qr_data) {
-      toast.error("No legacy data found to parse.");
-      return;
-    }
-    
-    const text = formData.qr_data;
-    
-    let title = "";
-    let composition = "";
-    let crops = "";
-    let dose = "";
-
-    const titleMatch = text.match(/Title:\s*(.+)/i);
-    if (titleMatch) title = titleMatch[1].trim();
-
-    const cropsMatch = text.match(/Crops:\s*(.+)/i);
-    if (cropsMatch) crops = cropsMatch[1].trim();
-
-    const doseMatch = text.match(/Dose:\s*(.+)/i);
-    if (doseMatch) dose = doseMatch[1].trim();
-
-    const compMatch = text.match(/Composition:\s*([\s\S]*?)(?:Crops:|Dose:|$)/i);
-    if (compMatch) {
-      composition = compMatch[1].trim();
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      tech_title: title || prev.tech_title,
-      tech_crops: crops || prev.tech_crops,
-      tech_dose: dose || prev.tech_dose
-    }));
-    
-    if (composition) {
-      const items = composition.split('\n').map(i => i.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
-      setCompositionItems(items.length > 0 ? items : [""]);
-    }
-    
-    toast.success("Legacy data automatically parsed into new fields!");
-  };
-
   const submit = () => {
     if (!formData.name || !formData.slug) return toast.error("Name and Slug are required.");
     
@@ -859,33 +817,6 @@ function ProductForm({
                 value={formData.tech_dose || ""} 
                 onChange={(e) => setFormData({...formData, tech_dose: e.target.value})} 
                 placeholder="e.g. 250-500 ml per acre" 
-              />
-            </div>
-
-            {/* Legacy Data for older products */}
-            <div className="space-y-2 mt-8 pt-4 border-t border-border">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <Label className="text-amber-600 flex items-center gap-2">
-                  Legacy Data (Old Format) 
-                  <span className="text-xs font-normal text-muted-foreground hidden sm:inline">You can automatically migrate this to the new fields</span>
-                </Label>
-                {formData.qr_data && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={parseLegacyData}
-                    className="border-amber-500/30 text-amber-600 hover:bg-amber-500/10 hover:text-amber-700 w-fit"
-                  >
-                    Auto-fill new fields
-                  </Button>
-                )}
-              </div>
-              <Textarea 
-                value={formData.qr_data || ""} 
-                onChange={(e) => setFormData({...formData, qr_data: e.target.value})} 
-                placeholder="No legacy data found" 
-                rows={5}
-                className="bg-amber-500/5 border-amber-500/20"
               />
             </div>
 
