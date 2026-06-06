@@ -82,7 +82,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
               </Avatar>
               <div className="hidden sm:flex flex-col items-start leading-tight">
                 <span className="text-xs font-semibold truncate max-w-[140px]">{profile?.full_name || "User"}</span>
-                <span className="text-[10px] text-muted-foreground capitalize">{profile?.role?.replace("_", " ") || "No Role"}</span>
+                <span className="text-[10px] text-muted-foreground capitalize">{profile?.role?.replace("_", " ") || "Employee"}</span>
               </div>
             </Button>
           </DropdownMenuTrigger>
