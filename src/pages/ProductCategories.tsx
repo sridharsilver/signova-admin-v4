@@ -28,8 +28,8 @@ export default function ProductCategories() {
       setLoading(true);
       const data = await productService.getCategories();
       setItems(data);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to fetch categories");
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to fetch categories");
     } finally {
       setLoading(false);
     }
@@ -41,8 +41,8 @@ export default function ProductCategories() {
         await productService.deleteCategory(id);
         toast.success("Category deleted");
         fetchCategories();
-      } catch (error: any) {
-        toast.error(error.message || "Failed to delete category");
+      } catch (error: unknown) {
+        toast.error((error as Error).message || "Failed to delete category");
       }
     }
   };
@@ -54,14 +54,14 @@ export default function ProductCategories() {
         toast.success("Category updated");
       } else {
         const { id, created_at, ...rest } = cat;
-        await productService.createCategory(rest as any);
+        await productService.createCategory(rest as unknown as ProductCategory);
         toast.success("Category created");
       }
       setOpen(false);
       setEditingCat(null);
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save category");
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to save category");
     }
   };
 

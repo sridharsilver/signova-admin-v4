@@ -10,15 +10,15 @@ import { productService, getProductImageUrl } from "@/services/productService";
 
 function getLabeledQRSource(svgElement: HTMLElement, productName: string | null | undefined, productSku: string | null | undefined, type: 'product' | 'technical') {
   let qrSource = '';
-  if (svgElement && (svgElement as any).outerHTML) {
-    qrSource = (svgElement as any).outerHTML;
+  if (svgElement && (svgElement as unknown as Element).outerHTML) {
+    qrSource = (svgElement as unknown as Element).outerHTML;
   } else {
     const serializer = new XMLSerializer();
     qrSource = serializer.serializeToString(svgElement);
   }
   // Ensure qrSource is a string before replace
   if (typeof qrSource === 'string') {
-    qrSource = qrSource.replace(/xmlns=\"[^\"]*\"/g, ''); // strip xmlns so it inherits from parent
+    qrSource = qrSource.replace(/xmlns="[^"]*"/g, ''); // strip xmlns so it inherits from parent
   }
   
   const escapeXml = (unsafe: string | null | undefined) => {

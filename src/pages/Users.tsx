@@ -29,7 +29,7 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ export default function Users() {
         (fresh) => setUsers(fresh), // background update callback
       );
       setUsers(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Failed to load users');
     } finally {
       setLoading(false);

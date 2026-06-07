@@ -32,10 +32,10 @@ try {
 } catch (err) { /* ignore private mode errors */ }
 
 function saveToLocal(key: string, entry: CacheEntry<unknown>) {
-  try { localStorage.setItem('qc_' + key, JSON.stringify(entry)); } catch (err) { }
+  try { localStorage.setItem('qc_' + key, JSON.stringify(entry)); } catch (err) { /* ignore */ }
 }
 function removeFromLocal(key: string) {
-  try { localStorage.removeItem('qc_' + key); } catch (err) { }
+  try { localStorage.removeItem('qc_' + key); } catch (err) { /* ignore */ }
 }
 
 
@@ -115,6 +115,6 @@ export const queryCache = {
         if (k?.startsWith('qc_')) keys.push(k);
       }
       keys.forEach((k) => localStorage.removeItem(k));
-    } catch (err) { }
+    } catch (err) { /* ignore */ }
   },
 };

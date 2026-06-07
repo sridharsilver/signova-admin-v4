@@ -158,6 +158,19 @@
   50%       { opacity: 0.4; }
 }
 
+/* Animated Background Mesh */
+@keyframes gradient-mesh {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-animated-mesh {
+  background: linear-gradient(-45deg, hsl(var(--primary) / 0.15), hsl(var(--primary-glow) / 0.2), hsl(var(--background)), hsl(var(--muted)));
+  background-size: 400% 400%;
+  animation: gradient-mesh 15s ease infinite;
+}
+
 /* Apply content-visibility to main page sections for faster layout calculation */
 .page-section {
   content-visibility: auto;

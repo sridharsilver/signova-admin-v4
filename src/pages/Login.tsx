@@ -79,34 +79,25 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-background">
-      <div className="hidden lg:flex relative gradient-primary items-center justify-center p-12 overflow-hidden">
-        <div className="absolute inset-0 gradient-hero opacity-60" />
-        <div className="relative z-10 max-w-md text-center space-y-6">
-          <img src={logoWhite} alt="Signova" className="h-14 mx-auto object-contain drop-shadow-lg" width={160} height={56} />
-          <h1 className="text-4xl font-bold tracking-tight text-white">
-            Welcome to <span className="text-gradient">OrgSphere</span>
-          </h1>
-          <p className="text-white/80">
-            Your modern enterprise intranet for employees, leave, documents and more — secure, fast, and beautifully simple.
-          </p>
-          <div className="grid grid-cols-3 gap-3 pt-4">
-            {["Products", "Categories", "Users"].map((t) => (
-              <div key={t} className="glass-card p-3 text-xs font-medium text-white">{t}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center justify-center p-6 md:p-12">
-        <div className="w-full max-w-md space-y-6">
-          <div className="lg:hidden">
-            <img src={logo} alt="Signova" className="h-10 object-contain" width={120} height={40} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold">
-              {mode === "signin" ? "Sign in" : mode === "signup" ? "Create your account" : "Reset your password"}
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-animated-mesh relative overflow-hidden">
+      {/* Decorative background elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-primary-glow/20 blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="glass-card-strong p-8 sm:p-10 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          
+          <div className="text-center space-y-2">
+            <div className="flex justify-center mb-6">
+              <div className="p-3 bg-white/10 rounded-2xl shadow-sm backdrop-blur-md border border-white/20 dark:bg-black/10 dark:border-white/10">
+                <img src={logo} alt="Signova" className="h-10 object-contain block dark:hidden" width={120} height={40} />
+                <img src={logoWhite} alt="Signova" className="h-10 object-contain hidden dark:block" width={120} height={40} />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold tracking-tight">
+              {mode === "signin" ? "Welcome Back" : mode === "signup" ? "Create Account" : "Reset Password"}
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground">
               {mode === "signin"
                 ? "Enter your credentials to access the intranet."
                 : mode === "signup"
@@ -114,58 +105,62 @@ export default function Login() {
                 : "We'll email you a secure link to reset your password."}
             </p>
           </div>
+
           {/* Indeterminate progress bar shown during API call */}
           {busy && (
-            <div className="w-full h-0.5 bg-muted rounded-full overflow-hidden">
+            <div className="w-full h-1 bg-muted/50 rounded-full overflow-hidden">
               <div className="h-full bg-primary rounded-full animate-[shimmer_1.5s_ease-in-out_infinite]" style={{ width: '60%', marginLeft: '-20%', animation: 'auth-bar 1.5s ease-in-out infinite' }} />
             </div>
           )}
-          <form onSubmit={mode === "signin" ? onSignIn : mode === "signup" ? onSignUp : onForgot} className="space-y-4">
+
+          <form onSubmit={mode === "signin" ? onSignIn : mode === "signup" ? onSignUp : onForgot} className="space-y-5">
             {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full name</Label>
-                <Input id="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" />
+              <div className="space-y-2 animate-in fade-in zoom-in-95 duration-300">
+                <Label htmlFor="fullName" className="text-foreground/80">Full name</Label>
+                <Input id="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Jane Doe" className="bg-background/50 border-border/50 focus:bg-background transition-colors" />
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Work email</Label>
+            
+            <div className="space-y-2 group">
+              <Label htmlFor="email" className="text-foreground/80">Work email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="you@company.com" autoComplete="email" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-colors" placeholder="you@company.com" autoComplete="email" />
               </div>
             </div>
+
             {mode !== "forgot" && (
-              <div className="space-y-2">
+              <div className="space-y-2 group animate-in fade-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-foreground/80">Password</Label>
                   {mode === "signin" && (
-                    <button type="button" onClick={() => setMode("forgot")} className="text-xs text-primary hover:underline">
+                    <button type="button" onClick={() => setMode("forgot")} className="text-xs text-primary hover:text-primary-glow hover:underline transition-colors">
                       Forgot password?
                     </button>
                   )}
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-colors" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
                 </div>
               </div>
             )}
-            <Button type="submit" className="w-full gradient-primary text-white shadow-glow" disabled={busy}>
-              {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+
+            <Button type="submit" className="w-full gradient-primary text-white shadow-glow hover:shadow-lg transition-all duration-300 hover:scale-[1.02]" disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
             </Button>
-            {mode !== "signin" && (
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setMode("signin")}>
-                Back to sign in
-              </Button>
-            )}
-            {mode === "signin" && (
-              <Button type="button" variant="ghost" className="w-full" onClick={() => setMode("signup")}>
-                Need an account? Sign up
-              </Button>
-            )}
+            
+            <div className="flex flex-col space-y-2 pt-2">
+              {mode !== "signin" && (
+                <Button type="button" variant="ghost" className="w-full hover:bg-muted/50 transition-colors" onClick={() => setMode("signin")}>
+                  Back to sign in
+                </Button>
+              )}
+            </div>
           </form>
-          <p className="text-xs text-muted-foreground text-center">
+
+          <p className="text-xs text-muted-foreground/80 text-center mt-6">
             {mode === "signup" ? "Your account must be approved by an administrator." : "Use the email your administrator provisioned for you."}
           </p>
         </div>

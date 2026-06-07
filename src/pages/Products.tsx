@@ -224,7 +224,7 @@ export default function Products() {
   const [frontendUrl, setFrontendUrl] = useState("https://1signova.pages.dev");
   const [showProductPageQR, setShowProductPageQR] = useState(true);
 
-  const applyData = useCallback((prods: typeof items, cats: typeof categories, settings: any) => {
+  const applyData = useCallback((prods: typeof items, cats: typeof categories, settings: { value?: { frontendUrl?: string; showProductPageQR?: boolean } } | null) => {
     setItems(prods);
     setCategories(cats);
     if (settings?.value) {
@@ -250,11 +250,12 @@ export default function Products() {
         ),
       ]);
       applyData(prods, cats, settings);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to fetch data");
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to fetch data");
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applyData]);
 
   useEffect(() => {
@@ -270,9 +271,9 @@ export default function Products() {
       try {
         await productService.deleteProduct(id);
         toast.success("Product deleted");
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Delete error', error);
-        toast.error(error.message || "Failed to delete product");
+        toast.error((error as Error).message || "Failed to delete product");
         // Revert local state on failure
         setItems(previousItems);
       }
@@ -293,14 +294,14 @@ export default function Products() {
         toast.success("Product updated");
       } else {
         const { id, created_at, updated_at, category, ...rest } = productToSave;
-        await productService.createProduct(rest as any);
+        await productService.createProduct(rest as unknown as Product);
         toast.success("Product created");
       }
       setOpen(false);
       setEditingItem(null);
       fetchData();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to save product");
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to save product");
     }
   }, [editingItem, fetchData]);
 
