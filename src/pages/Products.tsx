@@ -50,6 +50,9 @@ const ProductQRDialogs = memo(function ProductQRDialogs({
         <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
           <DialogHeader>
             <DialogTitle className="text-center mb-4">Product Page QR</DialogTitle>
+            <DialogDescription className="sr-only">
+              QR Code linking to the product page.
+            </DialogDescription>
           </DialogHeader>
           <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
             <QRCodeSVG 
@@ -136,6 +139,9 @@ const ProductQRDialogs = memo(function ProductQRDialogs({
         <DialogContent className="sm:max-w-md flex flex-col items-center justify-center p-8">
           <DialogHeader>
             <DialogTitle className="text-center mb-4">Technical Specifications QR</DialogTitle>
+            <DialogDescription className="sr-only">
+              QR Code linking to the technical specifications page.
+            </DialogDescription>
           </DialogHeader>
           <div className="bg-white p-4 rounded-2xl shadow-inner my-4">
             <QRCodeSVG 
@@ -269,7 +275,6 @@ export default function Products() {
         await productService.deleteProduct(id);
         toast.success("Product deleted");
       } catch (error: unknown) {
-        console.error('Delete error', error);
         toast.error((error as Error).message || "Failed to delete product");
         // Revert local state on failure
         setItems(previousItems);
@@ -278,34 +283,26 @@ export default function Products() {
   }, [items]);
 
   const handleSave = useCallback(async (product: Product, file: File | null) => {
-    console.log("handleSave started for product:", product.id);
     try {
       let finalImageUrl = product.image_url;
       if (file) {
-        console.log("Uploading image...");
         finalImageUrl = await productService.uploadImage(file);
       }
       
       const productToSave = { ...product, image_url: finalImageUrl };
-      console.log("productToSave ready, updating DB...");
       
       if (editingItem) {
-        console.log("Calling updateProduct...");
         await productService.updateProduct(productToSave);
-        console.log("updateProduct success!");
         toast.success("Product updated");
       } else {
-        console.log("Calling createProduct...");
         const { id, created_at, updated_at, category, ...rest } = productToSave;
         await productService.createProduct(rest as unknown as Product);
-        console.log("createProduct success!");
         toast.success("Product created");
       }
       setOpen(false);
       setEditingItem(null);
       fetchData();
     } catch (error: unknown) {
-      console.error("handleSave caught an error:", error);
       toast.error((error as Error).message || "Failed to save product");
     }
   }, [editingItem, fetchData]);
@@ -475,7 +472,7 @@ export default function Products() {
               <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <div className="flex gap-1 bg-background/80 backdrop-blur-md rounded-md p-0.5 shadow-sm">
                   <ProductQRDialogs product={prod} frontendUrl={frontendUrl} showProductPageQR={showProductPageQR} />
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); e.stopPropagation(); console.log('Edit product', prod.id); setEditingItem(prod); setOpen(true); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingItem(prod); setOpen(true); }}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(prod.id); }}>
@@ -626,13 +623,8 @@ const ProductForm = memo(function ProductForm({
   };
 
   const submit = () => {
-    console.log("Submit clicked, checking validation...");
-    if (!formData.name || !formData.slug) {
-      console.log("Validation failed: name or slug is missing");
-      return toast.error("Name and Slug are required.");
-    }
+    if (!formData.name || !formData.slug) return toast.error("Name and Slug are required.");
     
-    console.log("Validation passed, building payload...");
     const sizesArray = sizesInput.split(",").map(s => s.trim()).filter(Boolean);
     const cat = categories.find(c => c.slug === formData.category_slug);
 
@@ -658,7 +650,6 @@ const ProductForm = memo(function ProductForm({
       category: cat
     };
 
-    console.log("Calling onSave with product:", product);
     onSave(product, imageFile);
   };
 
@@ -666,7 +657,9 @@ const ProductForm = memo(function ProductForm({
     <>
       <SheetHeader className="px-6 py-4 border-b">
         <SheetTitle>{initialData ? "Edit Product" : "New Product"}</SheetTitle>
-        <SheetDescription className="sr-only">Fill out the product details below.</SheetDescription>
+        <SheetDescription>
+          Fill out the details to {initialData ? "update" : "create"} a product.
+        </SheetDescription>
         <div className="flex items-center gap-2 mt-2">
           <div className={`h-2 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-primary/30"}`} />
           <div className={`h-2 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-primary/30"}`} />
