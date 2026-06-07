@@ -106,12 +106,27 @@ export const productService = {
 
   async updateProduct(product: Product): Promise<void> {
     const { category, id, created_at, updated_at, ...productBase } = product as any;
-    const { error } = await supabase
+    
+    // Clean up undefined fields just in case
+    Object.keys(productBase).forEach(key => {
+      if (productBase[key] === undefined) delete productBase[key];
+    });
+
+    const { data, error } = await supabase
       .from('products')
       .update(productBase)
       .eq('id', product.id)
       .select();
-    if (error) throw error;
+      
+    if (error) {
+      console.error("Update error:", error);
+      throw new Error(error.message);
+    }
+    
+    if (!data || data.length === 0) {
+      throw new Error("Update failed: Row not found or blocked by database permissions (RLS).");
+    }
+    
     queryCache.invalidate(CACHE_KEYS.products);
   },
 
