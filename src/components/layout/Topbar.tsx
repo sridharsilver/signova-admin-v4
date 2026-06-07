@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Bell, Moon, Search, Sun, LogOut, User as UserIcon, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +17,26 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 
-export function Topbar({ onMenu }: { onMenu: () => void }) {
+export const Topbar = memo(function Topbar({ onMenu }: { onMenu: () => void }) {
   const { theme, toggle } = useTheme();
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const { items, unread, markAllRead } = useNotifications();
+
+  // Memoised sign-out handler to avoid re-creating on every render
+  const handleSignOut = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
+      await Promise.race([signOut(), timeout]);
+    } catch (err) {
+      console.error("Sign out error:", err);
+      localStorage.clear();
+      sessionStorage.clear();
+    } finally {
+      window.location.href = "/login";
+    }
+  }, [signOut]);
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/80 backdrop-blur-xl flex items-center gap-3 px-4 md:px-6">
@@ -102,23 +118,7 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               <UserIcon className="h-4 w-4 mr-2" /> Profile
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={async (e) => {
-                e.preventDefault();
-                try {
-                  // Add a timeout to prevent hanging on sign out
-                  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000));
-                  await Promise.race([signOut(), timeout]);
-                } catch (err) {
-                  console.error("Sign out error:", err);
-                  // Force clear if it hangs
-                  localStorage.clear();
-                  sessionStorage.clear();
-                } finally {
-                  window.location.href = "/login";
-                }
-              }}
-            >
+            <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" /> Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -126,4 +126,4 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       </div>
     </header>
   );
-}
+});

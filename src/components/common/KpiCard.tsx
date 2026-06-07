@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function KpiCard({
+export const KpiCard = memo(function KpiCard({
   label, value, icon: Icon, hint, accent = "primary",
 }: {
   label: string; value: string | number; icon: LucideIcon; hint?: string;
@@ -28,4 +29,4 @@ export function KpiCard({
       </div>
     </div>
   );
-}
+});

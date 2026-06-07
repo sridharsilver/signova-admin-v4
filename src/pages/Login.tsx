@@ -83,7 +83,7 @@ export default function Login() {
       <div className="hidden lg:flex relative gradient-primary items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 gradient-hero opacity-60" />
         <div className="relative z-10 max-w-md text-center space-y-6">
-          <img src={logoWhite} alt="Signova" className="h-14 mx-auto object-contain drop-shadow-lg" />
+          <img src={logoWhite} alt="Signova" className="h-14 mx-auto object-contain drop-shadow-lg" width={160} height={56} />
           <h1 className="text-4xl font-bold tracking-tight text-white">
             Welcome to <span className="text-gradient">OrgSphere</span>
           </h1>
@@ -100,7 +100,7 @@ export default function Login() {
       <div className="flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden">
-            <img src={logo} alt="Signova" className="h-10 object-contain" />
+            <img src={logo} alt="Signova" className="h-10 object-contain" width={120} height={40} />
           </div>
           <div>
             <h2 className="text-2xl font-bold">
@@ -114,6 +114,12 @@ export default function Login() {
                 : "We'll email you a secure link to reset your password."}
             </p>
           </div>
+          {/* Indeterminate progress bar shown during API call */}
+          {busy && (
+            <div className="w-full h-0.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full animate-[shimmer_1.5s_ease-in-out_infinite]" style={{ width: '60%', marginLeft: '-20%', animation: 'auth-bar 1.5s ease-in-out infinite' }} />
+            </div>
+          )}
           <form onSubmit={mode === "signin" ? onSignIn : mode === "signup" ? onSignUp : onForgot} className="space-y-4">
             {mode === "signup" && (
               <div className="space-y-2">
@@ -125,7 +131,7 @@ export default function Login() {
               <Label htmlFor="email">Work email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="you@company.com" />
+                <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="you@company.com" autoComplete="email" />
               </div>
             </div>
             {mode !== "forgot" && (
@@ -140,7 +146,7 @@ export default function Login() {
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" />
+                  <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
                 </div>
               </div>
             )}

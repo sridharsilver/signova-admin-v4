@@ -1,13 +1,49 @@
+import { memo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { LayoutDashboard, ChevronLeft, Package, ListTree, QrCode } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import logo from "@/assets/signova-logo.png";
 import logoWhite from "@/assets/signova-logo-white.png";
 import { useTheme } from "./ThemeProvider";
 import { useAuth } from "@/lib/auth";
+import { productService } from "@/services/productService";
+import { queryCache } from "@/lib/queryCache";
+import { supabase } from "@/lib/supabase";
 
-export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: boolean; onToggle: () => void; isMobile?: boolean }) {
+const prefetchProducts = () => {
+  import("@/pages/Products");
+  productService.getProducts().catch(() => {});
+};
+
+const prefetchCategories = () => {
+  import("@/pages/ProductCategories");
+  productService.getCategories().catch(() => {});
+};
+
+const prefetchDirectory = () => {
+  import("@/pages/ProductDirectory");
+  productService.getProducts().catch(() => {});
+};
+
+const prefetchUsers = () => {
+  import("@/pages/Users");
+  queryCache.get('admin_users', async () => {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('id,email,full_name,role,permissions,photo_url,created_at')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  }, 60_000).catch(() => {});
+};
+
+const prefetchDashboard = () => import("@/pages/Dashboard");
+const prefetchSettings = () => import("@/pages/Settings");
+
+
+export const Sidebar = memo(function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: boolean; onToggle: () => void; isMobile?: boolean }) {
   const { pathname } = useLocation();
   const { theme } = useTheme();
   const { hasPermission, isSuperAdmin } = useAuth();
@@ -34,6 +70,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         <NavLink
           to="/"
+          viewTransition
+          onMouseEnter={prefetchDashboard}
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
             pathname === "/"
@@ -49,6 +87,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
           <>
             <NavLink
               to="/products"
+              viewTransition
+              onMouseEnter={prefetchProducts}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 pathname === "/products"
@@ -62,6 +102,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
 
             <NavLink
               to="/products/categories"
+              viewTransition
+              onMouseEnter={prefetchCategories}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                 pathname === "/products/categories"
@@ -78,6 +120,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
         {hasPermission('products_qr') && (
           <NavLink
             to="/products/directory"
+            viewTransition
+            onMouseEnter={prefetchDirectory}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
               pathname === "/products/directory"
@@ -93,6 +137,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
         {isSuperAdmin && (
           <NavLink
             to="/users"
+            viewTransition
+            onMouseEnter={prefetchUsers}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all mt-4 border-t border-sidebar-border pt-4",
               pathname === "/users"
@@ -107,6 +153,8 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
 
         <NavLink
           to="/settings"
+          viewTransition
+          onMouseEnter={prefetchSettings}
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
             pathname === "/settings"
@@ -140,4 +188,4 @@ export function Sidebar({ collapsed, onToggle, isMobile = false }: { collapsed: 
       </div>
     </aside>
   );
-}
+});

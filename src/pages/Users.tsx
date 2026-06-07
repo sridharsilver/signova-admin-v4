@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserCog, ShieldCheck } from "lucide-react";
+import { UserCog, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { queryCache } from "@/lib/queryCache";
 import { Profile, useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -30,20 +31,29 @@ export default function Users() {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("admin_users")
-      .select("*")
-      .order("created_at", { ascending: false });
-      
-    if (error) {
-      toast.error("Failed to load users");
-    } else {
-      setUsers((data as Profile[]) || []);
+    try {
+      const data = await queryCache.get(
+        'admin_users',
+        async () => {
+          const { data, error } = await supabase
+            .from('admin_users')
+            .select('id,email,full_name,role,permissions,photo_url,created_at')
+            .order('created_at', { ascending: false });
+          if (error) throw error;
+          return (data ?? []) as Profile[];
+        },
+        60_000, // 60s TTL
+        (fresh) => setUsers(fresh), // background update callback
+      );
+      setUsers(data);
+    } catch (err: any) {
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, []);
 
   const handleEdit = (u: Profile) => {
     setEditingUser(u);
@@ -68,6 +78,7 @@ export default function Users() {
     } else {
       toast.success("User updated successfully");
       setOpen(false);
+      queryCache.invalidate('admin_users');
       fetchUsers();
     }
   };
@@ -101,11 +112,14 @@ export default function Users() {
           </thead>
           <tbody>
             {loading ? (
-              <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </td>
-              </tr>
+              Array.from({ length: 4 }).map((_, i) => (
+                <tr key={i} className="border-b border-border/50">
+                  <td className="px-6 py-4"><div className="h-4 w-36 rounded bg-muted animate-pulse" style={{ animationDelay: `${i * 60}ms` }} /></td>
+                  <td className="px-6 py-4"><div className="h-5 w-20 rounded bg-muted animate-pulse" style={{ animationDelay: `${i * 60 + 30}ms` }} /></td>
+                  <td className="px-6 py-4"><div className="h-5 w-16 rounded bg-muted animate-pulse" style={{ animationDelay: `${i * 60 + 60}ms` }} /></td>
+                  <td className="px-6 py-4 text-right"><div className="h-8 w-24 rounded bg-muted animate-pulse ml-auto" /></td>
+                </tr>
+              ))
             ) : users.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">

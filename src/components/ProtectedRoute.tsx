@@ -1,19 +1,13 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
-import { Loader2 } from "lucide-react";
+import { AuthSkeleton } from "@/components/common/AuthSkeleton";
 
 export function ProtectedRoute({ children, module }: { children: React.ReactNode; module?: string }) {
   const { user, loading, hasPermission } = useAuth();
   const loc = useLocation();
 
   if (loading) {
-    return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground font-medium">Authenticating...</p>
-
-      </div>
-    );
+    return <AuthSkeleton />;
   }
 
   if (!user) {
@@ -31,3 +25,4 @@ export function ProtectedRoute({ children, module }: { children: React.ReactNode
 
   return <>{children}</>;
 }
+

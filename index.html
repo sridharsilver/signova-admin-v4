@@ -7,21 +7,41 @@
     <meta name="description" content="OrgSphere is a modern, secure enterprise intranet for employee management, leave, documents, and team collaboration.">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta property="og:title" content="OrgSphere Intranet — Modern Enterprise Workspace">
-  <meta name="twitter:title" content="OrgSphere Intranet — Modern Enterprise Workspace">
-  <meta property="og:description" content="OrgSphere is a modern, secure enterprise intranet for employee management, leave, documents, and team collaboration.">
-  <meta name="twitter:description" content="OrgSphere is a modern, secure enterprise intranet for employee management, leave, documents, and team collaboration.">
-  <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8925b1c-3bfb-42a8-978a-c5a759a8828b/id-preview-2a58d549--883913e4-1bae-4d32-bb21-45106db8ea42.lovable.app-1778257107181.png">
-  <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8925b1c-3bfb-42a8-978a-c5a759a8828b/id-preview-2a58d549--883913e4-1bae-4d32-bb21-45106db8ea42.lovable.app-1778257107181.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:type" content="website">
-  <script>
-    (function() {
-      var t = localStorage.getItem("os-theme");
-      var dark = t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      document.documentElement.classList.toggle("dark", dark);
-    })();
-  </script>
-</head>
+    <meta name="twitter:title" content="OrgSphere Intranet — Modern Enterprise Workspace">
+    <meta property="og:description" content="OrgSphere is a modern, secure enterprise intranet for employee management, leave, documents, and team collaboration.">
+    <meta name="twitter:description" content="OrgSphere is a modern, secure enterprise intranet for employee management, leave, documents, and team collaboration.">
+    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8925b1c-3bfb-42a8-978a-c5a759a8828b/id-preview-2a58d549--883913e4-1bae-4d32-bb21-45106db8ea42.lovable.app-1778257107181.png">
+    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c8925b1c-3bfb-42a8-978a-c5a759a8828b/id-preview-2a58d549--883913e4-1bae-4d32-bb21-45106db8ea42.lovable.app-1778257107181.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:type" content="website">
+
+    <!-- ── Font optimisation ──────────────────────────────────────────────── -->
+    <!-- Preconnect eliminates DNS + TLS handshake latency for Google Fonts  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Non-blocking font load: media="print" loads without blocking render;
+         onload swaps it to "all" once it's ready.                           -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      media="print"
+      onload="this.media='all'"
+    >
+    <!-- Fallback for no-JS environments -->
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    </noscript>
+    <!-- ─────────────────────────────────────────────────────────────────── -->
+
+    <!-- Inline theme script: runs synchronously before paint to prevent flash -->
+    <script>
+      (function() {
+        var t = localStorage.getItem("os-theme");
+        var dark = t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      })();
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script>
@@ -33,3 +53,4 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+

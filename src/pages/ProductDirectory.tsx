@@ -244,7 +244,9 @@ export default function ProductDirectory() {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const data = await productService.getProducts();
+      const data = await productService.getProducts((fresh) => {
+        setProducts(fresh);
+      });
       setProducts(data);
     } catch (error) {
       console.error("Error loading products:", error);

@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
+import { queryCache } from "@/lib/queryCache";
+import { CACHE_KEYS } from "@/services/productService";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,11 +22,20 @@ import { Plus, Edit2, Trash2, Package, Tag, Download, Upload, Image as ImageIcon
 import { fmtDate } from "@/lib/format";
 import { Product, ProductCategory } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
+import { supabase } from "@/lib/supabase";
 
-function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
+const ProductQRDialogs = memo(function ProductQRDialogs({ 
+  product, 
+  showLabels = false,
+  frontendUrl = "https://1signova.pages.dev",
+  showProductPageQR = true
+}: { 
+  product: Product, 
+  showLabels?: boolean,
+  frontendUrl?: string,
+  showProductPageQR?: boolean
+}) {
   if (!product) return null;
-  const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
-  const showProductPageQR = localStorage.getItem('showProductPageQR') !== 'false';
 
   return (
     <>
@@ -201,7 +212,7 @@ function ProductQRDialogs({ product, showLabels = false }: { product: Product, s
       </Dialog>
     </>
   );
-}
+});
 
 export default function Products() {
   const [items, setItems] = useState<Product[]>([]);
@@ -210,42 +221,65 @@ export default function Products() {
   const [editingItem, setEditingItem] = useState<Product | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [loading, setLoading] = useState(true);
+  const [frontendUrl, setFrontendUrl] = useState("https://1signova.pages.dev");
+  const [showProductPageQR, setShowProductPageQR] = useState(true);
 
-  useEffect(() => {
-    fetchData();
+  const applyData = useCallback((prods: typeof items, cats: typeof categories, settings: any) => {
+    setItems(prods);
+    setCategories(cats);
+    if (settings?.value) {
+      setFrontendUrl(settings.value.frontendUrl || "https://1signova.pages.dev");
+      setShowProductPageQR(settings.value.showProductPageQR !== false);
+    }
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [prods, cats] = await Promise.all([
-        productService.getProducts(),
-        productService.getCategories()
+
+      // ── Stale-while-revalidate ──────────────────────────────────────────────
+      // productService methods already implement queryCache under the hood.
+      // We pass the onBackground callbacks directly to them so they update the UI when fresh data arrives.
+      const [prods, cats, settings] = await Promise.all([
+        productService.getProducts((fresh) => applyData(fresh, categories, null)),
+        productService.getCategories((fresh) => applyData(items, fresh, null)),
+        queryCache.get('frontend_settings', () =>
+          supabase.from('frontend_settings').select('value').eq('key', 'admin_config').maybeSingle()
+            .then(r => r.data),
+          10 * 60_000,
+        ),
       ]);
-      setItems(prods);
-      setCategories(cats);
+      applyData(prods, cats, settings);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch data");
     } finally {
       setLoading(false);
     }
-  };
+  }, [applyData]);
 
-  const handleDelete = async (id: string) => {
-    console.log('Attempting to delete product', id);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleDelete = useCallback(async (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
+      // ── Optimistic UI Update ───────────────────────────────────────────
+      const previousItems = [...items];
+      setItems(prev => prev.filter(p => p.id !== id));
+
       try {
         await productService.deleteProduct(id);
         toast.success("Product deleted");
-        fetchData();
       } catch (error: any) {
         console.error('Delete error', error);
         toast.error(error.message || "Failed to delete product");
+        // Revert local state on failure
+        setItems(previousItems);
       }
     }
-  };
+  }, [items]);
 
-  const handleSave = async (product: Product, file: File | null) => {
+  const handleSave = useCallback(async (product: Product, file: File | null) => {
     try {
       let finalImageUrl = product.image_url;
       if (file) {
@@ -268,9 +302,9 @@ export default function Products() {
     } catch (error: any) {
       toast.error(error.message || "Failed to save product");
     }
-  };
+  }, [editingItem, fetchData]);
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = useCallback(() => {
     const csvContent = `name,slug,category_slug,tag,image_url,description,uses,dosage,sizes,is_active,tech_title,tech_composition,tech_crops,tech_dose,qr_data\n"Grow Fast 500","grow-fast-500","chelated","Best Seller","","Premium liquid fertilizer for rapid vegetative growth.","Apply to soil or via foliar spray.","5ml per Liter of water.","{1L,5L,20L}","true","Zinc Gluconate Zn- 12% (Liquid)","First Ingredient (12%)\nSecond Ingredient (8%)","Suitable for all crops","250-500 ml per acre",""`;
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -281,14 +315,14 @@ export default function Products() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
+  }, []);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     toast.success(`${file.name} uploaded successfully! Bulk import will process the data.`);
     e.target.value = '';
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -351,11 +385,13 @@ export default function Products() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
-                    Loading products...
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={6} className="px-6 py-3">
+                      <div className="h-10 rounded-lg bg-muted animate-pulse" style={{ animationDelay: `${i * 60}ms` }} />
+                    </td>
+                  </tr>
+                ))
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
@@ -390,7 +426,7 @@ export default function Products() {
                   </td>
                   <td className="px-6 py-4 text-muted-foreground">{fmtDate(prod.updated_at)}</td>
                   <td className="px-6 py-4 text-right space-x-2">
-                    <ProductQRDialogs product={prod} />
+                    <ProductQRDialogs product={prod} frontendUrl={frontendUrl} showProductPageQR={showProductPageQR} />
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -417,9 +453,13 @@ export default function Products() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {loading ? (
-            <div className="col-span-full p-12 text-center text-muted-foreground glass-card rounded-xl">
-              Loading products...
-            </div>
+            Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-64 rounded-3xl bg-muted animate-pulse"
+                style={{ animationDelay: `${i * 50}ms` }}
+              />
+            ))
           ) : items.length === 0 ? (
             <div className="col-span-full p-12 text-center text-muted-foreground glass-card rounded-xl">
               No products found.
@@ -428,7 +468,7 @@ export default function Products() {
             <div key={prod.id} className="bg-white/60 dark:bg-card/40 border border-white/40 dark:border-white/10 rounded-3xl overflow-hidden glass-card rounded-xl flex flex-col group relative transition-all hover:shadow-lg">
               <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-20">
                 <div className="flex gap-1 bg-background/80 backdrop-blur-md rounded-md p-0.5 shadow-sm">
-                  <ProductQRDialogs product={prod} />
+                  <ProductQRDialogs product={prod} frontendUrl={frontendUrl} showProductPageQR={showProductPageQR} />
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.preventDefault(); e.stopPropagation(); console.log('Edit product', prod.id); setEditingItem(prod); setOpen(true); }}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -493,7 +533,7 @@ export default function Products() {
   );
 }
 
-function ProductForm({ 
+const ProductForm = memo(function ProductForm({ 
   initialData, 
   categories,
   onSave, 
@@ -863,4 +903,4 @@ function ProductForm({
       </SheetFooter>
     </>
   );
-}
+});

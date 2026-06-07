@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Google Fonts (Inter) is loaded non-blocking via a <link> tag in index.html.
+   Removing the @import here eliminates a render-blocking network request.    */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -141,3 +142,25 @@
     color: transparent;
   }
 }
+
+/* ── Performance & animation utilities ─────────────────────────────────────── */
+
+/* Indeterminate progress bar for login / auth loading states */
+@keyframes auth-bar {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* Staggered skeleton shimmer used in AuthSkeleton */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Apply content-visibility to main page sections for faster layout calculation */
+.page-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
