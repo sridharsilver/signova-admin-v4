@@ -119,11 +119,16 @@ export const productService = {
       .select();
       
     if (error) {
-      console.error("Update error:", error);
+      console.log("UPDATE ERROR FROM SUPABASE:", error);
+      alert(`Supabase Error: ${error.message}`);
       throw new Error(error.message);
     }
     
+    console.log("Supabase update returned:", data);
+
     if (!data || data.length === 0) {
+      console.log("UPDATE RETURNED 0 ROWS! RLS OR ROW NOT FOUND.");
+      alert("Database returned 0 rows. This means RLS blocked it or row is missing!");
       throw new Error("Update failed: Row not found or blocked by database permissions (RLS).");
     }
     

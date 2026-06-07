@@ -303,6 +303,8 @@ export default function Products() {
       setEditingItem(null);
       fetchData();
     } catch (error: unknown) {
+      console.log("HANDLESAVE CAUGHT ERROR:", error);
+      alert(`Frontend caught error: ${(error as Error).message}`);
       toast.error((error as Error).message || "Failed to save product");
     }
   }, [editingItem, fetchData]);
