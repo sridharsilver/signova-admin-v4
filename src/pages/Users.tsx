@@ -8,6 +8,7 @@ import { Profile, useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AVAILABLE_MODULES = [
@@ -25,6 +26,7 @@ export default function Users() {
   
   const [role, setRole] = useState("employee");
   const [permissions, setPermissions] = useState<string[]>([]);
+  const [fullName, setFullName] = useState("");
   const [saving, setSaving] = useState(false);
 
 
@@ -60,6 +62,7 @@ export default function Users() {
     setEditingUser(u);
     setRole(u.role);
     setPermissions(u.permissions || []);
+    setFullName(u.full_name || "");
     setOpen(true);
   };
 
@@ -69,7 +72,7 @@ export default function Users() {
     
     const { error } = await supabase
       .from("admin_users")
-      .update({ role, permissions })
+      .update({ role, permissions, full_name: fullName })
       .eq("id", editingUser.id);
       
     setSaving(false);
@@ -180,6 +183,11 @@ export default function Users() {
             <DialogDescription className="sr-only">Update the user's role and module permissions.</DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
+            <div>
+              <Label className="text-base font-semibold mb-3 block">Full Name</Label>
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="User's full name" />
+            </div>
+
             <div>
               <Label className="text-base font-semibold mb-3 block">Role</Label>
               <Select value={role} onValueChange={setRole}>
