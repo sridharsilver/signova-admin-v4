@@ -105,11 +105,11 @@ export const productService = {
   },
 
   async updateProduct(product: Product): Promise<void> {
-    const { category, ...productBase } = product;
+    const { category, id, created_at, updated_at, ...productBase } = product as any;
     const { error } = await supabase
       .from('products')
       .update(productBase)
-      .eq('id', productBase.id)
+      .eq('id', product.id)
       .select();
     if (error) throw error;
     queryCache.invalidate(CACHE_KEYS.products);
