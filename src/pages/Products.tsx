@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription
 } from "@/components/ui/sheet";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -224,14 +224,6 @@ export default function Products() {
   const [frontendUrl, setFrontendUrl] = useState("https://1signova.pages.dev");
   const [showProductPageQR, setShowProductPageQR] = useState(true);
 
-  const applyData = useCallback((prods: typeof items, cats: typeof categories, settings: { value?: { frontendUrl?: string; showProductPageQR?: boolean } } | null) => {
-    setItems(prods);
-    setCategories(cats);
-    if (settings?.value) {
-      setFrontendUrl(settings.value.frontendUrl || "https://1signova.pages.dev");
-      setShowProductPageQR(settings.value.showProductPageQR !== false);
-    }
-  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -241,22 +233,27 @@ export default function Products() {
       // productService methods already implement queryCache under the hood.
       // We pass the onBackground callbacks directly to them so they update the UI when fresh data arrives.
       const [prods, cats, settings] = await Promise.all([
-        productService.getProducts((fresh) => applyData(fresh, categories, null)),
-        productService.getCategories((fresh) => applyData(items, fresh, null)),
+        productService.getProducts((fresh) => setItems(fresh)),
+        productService.getCategories((fresh) => setCategories(fresh)),
         queryCache.get('frontend_settings', () =>
           supabase.from('frontend_settings').select('value').eq('key', 'admin_config').maybeSingle()
             .then(r => r.data),
           10 * 60_000,
         ),
       ]);
-      applyData(prods, cats, settings);
+      setItems(prods);
+      setCategories(cats);
+      if (settings?.value) {
+        setFrontendUrl(settings.value.frontendUrl || "https://1signova.pages.dev");
+        setShowProductPageQR(settings.value.showProductPageQR !== false);
+      }
     } catch (error: unknown) {
       toast.error((error as Error).message || "Failed to fetch data");
     } finally {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applyData]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -655,6 +652,7 @@ const ProductForm = memo(function ProductForm({
     <>
       <SheetHeader className="px-6 py-4 border-b">
         <SheetTitle>{initialData ? "Edit Product" : "New Product"}</SheetTitle>
+        <SheetDescription className="sr-only">Fill out the product details below.</SheetDescription>
         <div className="flex items-center gap-2 mt-2">
           <div className={`h-2 flex-1 rounded-full ${step >= 1 ? "bg-primary" : "bg-primary/30"}`} />
           <div className={`h-2 flex-1 rounded-full ${step >= 2 ? "bg-primary" : "bg-primary/30"}`} />

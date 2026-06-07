@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Button } from "@/components/ui/button";
-import { UserCog, ShieldCheck } from "lucide-react";
+import { UserCog, ShieldCheck, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { queryCache } from "@/lib/queryCache";
 import { Profile, useAuth } from "@/lib/auth";
@@ -27,9 +27,6 @@ export default function Users() {
   const [permissions, setPermissions] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -54,6 +51,10 @@ export default function Users() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleEdit = (u: Profile) => {
     setEditingUser(u);

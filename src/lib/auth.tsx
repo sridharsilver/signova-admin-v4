@@ -153,112 +153,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Failsafe ONLY for the slow path (expired token needing server refresh).
     // Does NOT sign out — just unblocks the loading screen so the user isn't frozen.
     const failsafe = setTimeout(() => {
-      if (mounted) {
+      if (mounted && loading) {
         console.warn("⏱ Supabase token refresh is slow (project may be waking up). Rendering with current state.");
         setLoading(false);
       }
     }, 12_000);
 
-    async function loadAuth() {
-      // ── FAST PATH ── valid token + cached profile, zero network calls ─────
-      // Check localStorage synchronously — no network, no wait.
-      const local = readLocalSession();
-      const cached = local ? getCachedProfile(local.userId) : null;
-
-      if (local && cached && !isTokenExpired(local)) {
-        // ✅ Render the full UI immediately from localStorage + sessionStorage
-        if (mounted) {
-          setSession(local.session);
-          setUser(local.session.user);
-          setProfile(cached);
-          setLoading(false);
-          clearTimeout(failsafe);
-        }
-
-        // Background: silently re-validate with Supabase and refresh profile.
-        // User never sees a loading state during this step.
-        supabase.auth.getSession()
-          .then(async ({ data: { session } }) => {
-            if (!mounted) return;
-            if (session) {
-              setSession(session);
-              setUser(session.user);
-              const fresh = await fetchAndCacheProfile(session.user.id, session, cached);
-              if (mounted && fresh) setProfile(fresh);
-            } else {
-              // Server says session is gone — sign out cleanly
-              clearCachedProfile(local.userId);
-              setSession(null); setUser(null); setProfile(null);
-            }
-          })
-          .catch((err) => console.error("Background session refresh failed:", err));
-
-        return; // ✅ Done — UI is already painted
-      }
-
-      // ── SLOW PATH ── expired token or no cache, must call getSession() ────
-      // This hits the network (Supabase token refresh) and may take several
-      // seconds if the project is waking up. The failsafe above covers > 12 s.
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!mounted) return;
-
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          const userId = session.user.id;
-          // If cache from earlier is present (e.g. stale token was refreshed),
-          // show it immediately and re-fetch in background.
-          if (cached) {
-            setProfile(cached);
-            setLoading(false);
-            clearTimeout(failsafe);
-            fetchAndCacheProfile(userId, session, cached).then((fresh) => {
-              if (mounted && fresh) setProfile(fresh);
-            });
-          } else {
-            // Cold start — wait for fresh profile before unblocking
-            const dbProfile = await fetchAndCacheProfile(userId, session, null);
-            if (mounted) setProfile(dbProfile ?? buildFallback(userId, session));
-          }
-        } else {
-          // No session at all
-          if (local) clearCachedProfile(local.userId);
-          if (mounted) { setSession(null); setUser(null); setProfile(null); }
-        }
-      } catch (err) {
-        console.error("Auth initialization error:", err);
-        // On error: keep optimistic cache if we had one, otherwise clear
-        if (!cached && mounted) { setSession(null); setUser(null); setProfile(null); }
-      } finally {
-        if (mounted) setLoading(false);
-        clearTimeout(failsafe);
-      }
-    }
-
-    loadAuth();
-
-    // Handle auth events after the initial load (sign-in, sign-out, refresh)
+    // Handle auth events. INITIAL_SESSION is fired by Supabase once it has
+    // asynchronously read the session from local storage (usually < 5ms).
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        if (event === "INITIAL_SESSION") return; // handled by loadAuth
 
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
           const userId = session.user.id;
-          const existing = getCachedProfile(userId);
-          const fresh = await fetchAndCacheProfile(userId, session, existing);
-          if (mounted) setProfile(fresh ?? buildFallback(userId, session));
-        } else {
-          if (user) clearCachedProfile(user.id);
-          if (mounted) setProfile(null);
-        }
+          const cached = getCachedProfile(userId);
 
-        if (mounted) { setLoading(false); clearTimeout(failsafe); }
+          if (cached) {
+            // FAST PATH: We have a cached profile!
+            // Unblock the UI immediately so rendering is fast.
+            setProfile(cached);
+            setLoading(false);
+            clearTimeout(failsafe);
+
+            // Fetch fresh profile in the background
+            const fresh = await fetchAndCacheProfile(userId, session, cached);
+            if (mounted && fresh) setProfile(fresh);
+          } else {
+            // SLOW PATH: No cache. We must fetch the profile from DB before unblocking.
+            const fresh = await fetchAndCacheProfile(userId, session, null);
+            if (mounted) {
+              setProfile(fresh ?? buildFallback(userId, session));
+              setLoading(false);
+              clearTimeout(failsafe);
+            }
+          }
+        } else {
+          // No user session
+          if (user) clearCachedProfile(user.id);
+          if (mounted) {
+            setProfile(null);
+            setLoading(false);
+            clearTimeout(failsafe);
+          }
+        }
       }
     );
 
