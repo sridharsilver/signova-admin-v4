@@ -14,22 +14,44 @@ import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
+// Wrapper to handle Vite chunk load errors (happens when the app updates while open)
+const lazyWithRetry = (componentImport: () => Promise<any>) => {
+  return lazy(async () => {
+    try {
+      const component = await componentImport();
+      sessionStorage.removeItem("chunk-load-error-refresh");
+      return component;
+    } catch (error: any) {
+      const isChunkLoadError = error?.message?.includes("Failed to fetch dynamically imported module") || error?.name === "ChunkLoadError";
+      if (isChunkLoadError) {
+        const hasRefreshed = sessionStorage.getItem("chunk-load-error-refresh");
+        if (!hasRefreshed) {
+          sessionStorage.setItem("chunk-load-error-refresh", "true");
+          window.location.reload();
+          return new Promise(() => {}); // Prevent React from immediately throwing
+        }
+      }
+      throw error;
+    }
+  });
+};
+
 // ── Lazily loaded (route-based code splitting) ────────────────────────────────
 // Each page becomes its own JS chunk, downloaded only when the route is visited.
-const Dashboard        = lazy(() => import("./pages/Dashboard"));
-const Employees        = lazy(() => import("./pages/Employees"));
-const Leave            = lazy(() => import("./pages/Leave"));
-const Attendance       = lazy(() => import("./pages/Attendance"));
-const Documents        = lazy(() => import("./pages/Documents"));
-const Announcements    = lazy(() => import("./pages/Announcements"));
-const Reports          = lazy(() => import("./pages/Reports"));
-const Settings         = lazy(() => import("./pages/Settings"));
-const Profile          = lazy(() => import("./pages/Profile"));
-const Products         = lazy(() => import("./pages/Products"));
-const ProductCategories = lazy(() => import("./pages/ProductCategories"));
-const ProductDirectory = lazy(() => import("./pages/ProductDirectory"));
-const Users            = lazy(() => import("./pages/Users"));
-const Debug            = lazy(() => import("./pages/Debug"));
+const Dashboard        = lazyWithRetry(() => import("./pages/Dashboard"));
+const Employees        = lazyWithRetry(() => import("./pages/Employees"));
+const Leave            = lazyWithRetry(() => import("./pages/Leave"));
+const Attendance       = lazyWithRetry(() => import("./pages/Attendance"));
+const Documents        = lazyWithRetry(() => import("./pages/Documents"));
+const Announcements    = lazyWithRetry(() => import("./pages/Announcements"));
+const Reports          = lazyWithRetry(() => import("./pages/Reports"));
+const Settings         = lazyWithRetry(() => import("./pages/Settings"));
+const Profile          = lazyWithRetry(() => import("./pages/Profile"));
+const Products         = lazyWithRetry(() => import("./pages/Products"));
+const ProductCategories = lazyWithRetry(() => import("./pages/ProductCategories"));
+const ProductDirectory = lazyWithRetry(() => import("./pages/ProductDirectory"));
+const Users            = lazyWithRetry(() => import("./pages/Users"));
+const Debug            = lazyWithRetry(() => import("./pages/Debug"));
 
 const App = () => (
   <ThemeProvider>
