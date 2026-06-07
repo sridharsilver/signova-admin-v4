@@ -278,26 +278,34 @@ export default function Products() {
   }, [items]);
 
   const handleSave = useCallback(async (product: Product, file: File | null) => {
+    console.log("handleSave started for product:", product.id);
     try {
       let finalImageUrl = product.image_url;
       if (file) {
+        console.log("Uploading image...");
         finalImageUrl = await productService.uploadImage(file);
       }
       
       const productToSave = { ...product, image_url: finalImageUrl };
+      console.log("productToSave ready, updating DB...");
       
       if (editingItem) {
+        console.log("Calling updateProduct...");
         await productService.updateProduct(productToSave);
+        console.log("updateProduct success!");
         toast.success("Product updated");
       } else {
+        console.log("Calling createProduct...");
         const { id, created_at, updated_at, category, ...rest } = productToSave;
         await productService.createProduct(rest as unknown as Product);
+        console.log("createProduct success!");
         toast.success("Product created");
       }
       setOpen(false);
       setEditingItem(null);
       fetchData();
     } catch (error: unknown) {
+      console.error("handleSave caught an error:", error);
       toast.error((error as Error).message || "Failed to save product");
     }
   }, [editingItem, fetchData]);
@@ -618,8 +626,13 @@ const ProductForm = memo(function ProductForm({
   };
 
   const submit = () => {
-    if (!formData.name || !formData.slug) return toast.error("Name and Slug are required.");
+    console.log("Submit clicked, checking validation...");
+    if (!formData.name || !formData.slug) {
+      console.log("Validation failed: name or slug is missing");
+      return toast.error("Name and Slug are required.");
+    }
     
+    console.log("Validation passed, building payload...");
     const sizesArray = sizesInput.split(",").map(s => s.trim()).filter(Boolean);
     const cat = categories.find(c => c.slug === formData.category_slug);
 
@@ -645,6 +658,7 @@ const ProductForm = memo(function ProductForm({
       category: cat
     };
 
+    console.log("Calling onSave with product:", product);
     onSave(product, imageFile);
   };
 
