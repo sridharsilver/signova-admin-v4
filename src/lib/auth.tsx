@@ -101,9 +101,9 @@ async function fetchAndCacheProfile(
       .from("admin_users")
       .select("*")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== "PGRST116") {
+    if (error) {
       console.error("Profile fetch error:", error);
     }
 
