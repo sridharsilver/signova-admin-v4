@@ -7,6 +7,11 @@ import { QRCodeSVG } from "qrcode.react";
 import { Search, QrCode, Download, Image as ImageIcon, LayoutGrid, List } from "lucide-react";
 import { Product } from "@/types/products";
 import { productService, getProductImageUrl } from "@/services/productService";
+import { supabase } from "@/lib/supabase";
+import { queryCache } from "@/lib/queryCache";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 function getLabeledQRSource(svgElement: HTMLElement, productName: string | null | undefined, productSku: string | null | undefined, type: 'product' | 'technical') {
   let qrSource = '';
@@ -51,10 +56,8 @@ function getLabeledQRSource(svgElement: HTMLElement, productName: string | null 
 </svg>`;
 }
 
-function ProductQRDialogs({ product, showLabels = false }: { product: Product, showLabels?: boolean }) {
+function ProductQRDialogs({ product, showLabels = false, frontendUrl, showProductPageQR = true }: { product: Product, showLabels?: boolean, frontendUrl: string, showProductPageQR?: boolean }) {
   if (!product) return null;
-  const frontendUrl = localStorage.getItem('frontendUrl') || "https://1signova.pages.dev";
-  const showProductPageQR = localStorage.getItem('showProductPageQR') !== 'false';
 
   return (
     <div className={`flex gap-2 ${showLabels ? 'flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center' : 'items-center'}`}>
@@ -236,18 +239,61 @@ export default function ProductDirectory() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
+  const [frontendUrl, setFrontendUrl] = useState("https://1signova.pages.dev");
+  const [showProductPageQR, setShowProductPageQR] = useState(true);
+  const { isSuperAdmin } = useAuth();
+
+  // Load global settings (including showProductPageQR)
+  const loadSettings = async () => {
+    try {
+      const { data } = await supabase.from('frontend_settings').select('value').eq('key', 'admin_config').maybeSingle();
+      if (data?.value) {
+        setFrontendUrl(data.value.frontendUrl || "https://1signova.pages.dev");
+        setShowProductPageQR(data.value.showProductPageQR !== false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleProductPageQR = async (checked: boolean) => {
+    setShowProductPageQR(checked);
+    const { error } = await supabase.from('frontend_settings').upsert({
+      key: 'admin_config',
+      value: { frontendUrl, showProductPageQR: checked }
+    });
+    if (error) {
+      toast.error('Failed to save QR setting');
+      setShowProductPageQR(!checked);
+    } else {
+      queryCache.invalidate('frontend_settings');
+      toast.success(`Product Page QR ${checked ? 'enabled' : 'disabled'}`);
+    }
+  };
 
   useEffect(() => {
+    loadSettings();
     loadProducts();
   }, []);
 
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const data = await productService.getProducts((fresh) => {
-        setProducts(fresh);
-      });
+      const [data, settings] = await Promise.all([
+        productService.getProducts((fresh) => {
+          setProducts(fresh);
+        }),
+        queryCache.get('frontend_settings', () =>
+          supabase.from('frontend_settings').select('value').eq('key', 'admin_config').maybeSingle()
+            .then(r => r.data),
+          10 * 60_000,
+        )
+      ]);
       setProducts(data);
+      if (settings?.value) {
+        setFrontendUrl(settings.value.frontendUrl || "https://1signova.pages.dev");
+        setShowProductPageQR(settings.value.showProductPageQR !== false);
+      }
     } catch (error) {
       console.error("Error loading products:", error);
     } finally {
@@ -264,9 +310,15 @@ export default function ProductDirectory() {
     <div className="space-y-8 max-w-7xl mx-auto pb-12 px-4 sm:px-6 lg:px-8 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-4 md:mt-0">
       <div className="flex flex-col gap-2 relative z-10 text-center sm:text-left">
         <div className="absolute -top-10 -left-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10" />
-        <div className="absolute -top-10 right-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10" />
+        <div className="absolute -top-10 right-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10" />
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">Product QR Directory</h1>
         <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto sm:mx-0">Access and download high-quality QR codes for your product catalog in a beautifully designed directory.</p>
+        {isSuperAdmin && (
+          <div className="flex items-center gap-2 mt-2">
+            <span className="font-medium">Show Product Page QR</span>
+            <Switch checked={showProductPageQR} onCheckedChange={toggleProductPageQR} />
+          </div>
+        )}
       </div>
 
       <div className="glass-card rounded-3xl border border-white/20 dark:border-white/10 shadow-2xl shadow-black/5 overflow-hidden bg-white/40 dark:bg-black/40 backdrop-blur-2xl relative z-10">
@@ -348,7 +400,7 @@ export default function ProductDirectory() {
                   </div>
 
                   <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t sm:border-t-0 pt-4 sm:pt-0 mt-4 sm:mt-0 opacity-100 sm:opacity-80 group-hover:opacity-100 transition-opacity w-full sm:w-auto">
-                    <ProductQRDialogs product={product} showLabels={true} />
+                    <ProductQRDialogs product={product} showLabels={true} frontendUrl={frontendUrl} showProductPageQR={showProductPageQR} />
                   </div>
                 </div>
               ))}
@@ -383,7 +435,7 @@ export default function ProductDirectory() {
                     <div className="pt-5 border-t border-border/40 mt-auto flex justify-between items-center relative">
                       <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       <span className="text-xs text-muted-foreground font-medium">QR Codes</span>
-                      <ProductQRDialogs product={product} showLabels={false} />
+                      <ProductQRDialogs product={product} showLabels={false} frontendUrl={frontendUrl} showProductPageQR={showProductPageQR} />
                     </div>
                   </div>
                 </div>
